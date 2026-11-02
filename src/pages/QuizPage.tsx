@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Info, CheckCircle2, XCircle } from 'lucide-react';
 import { quizQuestions } from '@/data/quizQuestions';
 import { useProgress } from '@/hooks/useProgress';
+import { QuizVisual } from '@/components/quiz/QuizVisual';
 
 export function QuizPage() {
   const navigate = useNavigate();
@@ -20,33 +21,39 @@ export function QuizPage() {
   const question = quizQuestions[currentIndex];
   const totalQuestions = quizQuestions.length;
 
-  const handleChoice = useCallback((choiceId: string) => {
-    if (showFeedback) return;
-    setSelectedChoice(choiceId);
-    setShowFeedback(true);
+  const currentChoiceIsCorrect = selectedChoice
+    ? question.choices.find((c) => c.id === selectedChoice)?.isCorrect ?? false
+    : false;
 
-    const choice = question.choices.find((c) => c.id === choiceId);
-    if (choice?.isCorrect) {
-      setScore((prev) => prev + 1);
-    }
-  }, [question, showFeedback]);
+  const handleChoice = useCallback(
+    (choiceId: string) => {
+      if (showFeedback) return;
+      setSelectedChoice(choiceId);
+      setShowFeedback(true);
+
+      const choice = question.choices.find((c) => c.id === choiceId);
+      if (choice?.isCorrect) {
+        setScore((prev) => prev + 1);
+      }
+    },
+    [question, showFeedback]
+  );
 
   const handleNext = useCallback(() => {
+    const finalScore = score + (currentChoiceIsCorrect ? 1 : 0);
+
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex((prev) => prev + 1);
       setSelectedChoice(null);
       setShowFeedback(false);
     } else {
       setFinished(true);
-      recordQuizResult('initial-quiz', score + (question.choices.find((c) => c.id === selectedChoice)?.isCorrect ? 1 : 0), totalQuestions);
+      recordQuizResult('initial-quiz', finalScore, totalQuestions);
       navigate('/evaluame/resultado', {
-        state: {
-          score: score + (question.choices.find((c) => c.id === selectedChoice)?.isCorrect ? 1 : 0),
-          total: totalQuestions,
-        },
+        state: { score: finalScore, total: totalQuestions },
       });
     }
-  }, [currentIndex, totalQuestions, score, selectedChoice, question, navigate, recordQuizResult]);
+  }, [currentIndex, totalQuestions, score, currentChoiceIsCorrect, navigate, recordQuizResult]);
 
   if (finished) {
     return null;
@@ -67,10 +74,10 @@ export function QuizPage() {
         </Badge>
       </div>
 
+      <QuizVisual type={question.visualType} data={question.visualData} />
+
       <Card>
-        <h3 className="text-xl font-bold text-text mb-4">Situación</h3>
-        <p className="text-text leading-relaxed mb-4">{question.situation}</p>
-        <p className="text-text font-semibold">{question.question}</p>
+        <p className="text-text font-semibold text-lg">{question.question}</p>
       </Card>
 
       <div className="space-y-3">
@@ -108,18 +115,20 @@ export function QuizPage() {
       </div>
 
       {showFeedback && (
-        <Card className={selectedChoice && question.choices.find((c) => c.id === selectedChoice)?.isCorrect ? 'bg-green-50 border-success' : 'bg-red-50 border-danger'}>
+        <Card
+          className={
+            currentChoiceIsCorrect ? 'bg-green-50 border-success' : 'bg-red-50 border-danger'
+          }
+        >
           <div className="flex items-start gap-3">
-            {selectedChoice && question.choices.find((c) => c.id === selectedChoice)?.isCorrect ? (
+            {currentChoiceIsCorrect ? (
               <CheckCircle2 size={28} className="text-success shrink-0 mt-1" aria-hidden="true" />
             ) : (
               <XCircle size={28} className="text-danger shrink-0 mt-1" aria-hidden="true" />
             )}
             <div>
               <h4 className="text-lg font-bold text-text mb-1">
-                {selectedChoice && question.choices.find((c) => c.id === selectedChoice)?.isCorrect
-                  ? '¡Respuesta correcta!'
-                  : 'No es la mejor opción'}
+                {currentChoiceIsCorrect ? '¡Respuesta correcta!' : 'No es la mejor opción'}
               </h4>
               <p className="text-text">{question.explanation}</p>
             </div>
@@ -139,7 +148,8 @@ export function QuizPage() {
           <div>
             <h3 className="text-xl font-bold text-primary mb-1">¿Cómo funciona?</h3>
             <ul className="list-disc list-inside text-text space-y-1">
-              <li>Elige la opción que consideres más segura.</li>
+              <li>Observa la situación simulada.</li>
+              <li>Elige la opción más segura.</li>
               <li>Recibirás una explicación después de responder.</li>
               <li>Puedes repetir la evaluación las veces que quieras.</li>
             </ul>
