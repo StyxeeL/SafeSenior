@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PhoneCall } from '@/components/simulation/PhoneCall';
 import { SMSMessage } from '@/components/simulation/SMSMessage';
+import { WhatsAppChat } from '@/components/simulation/WhatsAppChat';
+import { EmailViewer } from '@/components/simulation/EmailViewer';
 import { useProgress } from '@/hooks/useProgress';
 
 export function ScenarioPage() {
@@ -60,6 +62,20 @@ export function ScenarioPage() {
           )}
           {scenario.content?.type === 'smishing' && (
             <SMSMessage
+              content={scenario.content}
+              onComplete={handleComplete}
+              onRestart={handleRestart}
+            />
+          )}
+          {scenario.content?.type === 'whatsapp' && (
+            <WhatsAppChat
+              content={scenario.content}
+              onComplete={handleComplete}
+              onRestart={handleRestart}
+            />
+          )}
+          {scenario.content?.type === 'email' && (
+            <EmailViewer
               content={scenario.content}
               onComplete={handleComplete}
               onRestart={handleRestart}

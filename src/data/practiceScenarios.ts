@@ -33,7 +33,34 @@ export interface SmishingContent {
   feedback: ScenarioFeedback;
 }
 
-export type ScenarioContent = VishingContent | SmishingContent;
+export interface WhatsAppContent {
+  type: 'whatsapp';
+  contactName: string;
+  contactNumber: string;
+  messages: {
+    sender: 'them' | 'user';
+    text: string;
+    isReceipt?: boolean;
+    receiptAmount?: string;
+    receiptService?: string;
+  }[];
+  choices: ScenarioChoice[];
+  feedback: ScenarioFeedback;
+}
+
+export interface EmailContent {
+  type: 'email';
+  fromName: string;
+  fromEmail: string;
+  subject: string;
+  body: string[];
+  linkText?: string;
+  attachmentName?: string;
+  choices: ScenarioChoice[];
+  feedback: ScenarioFeedback;
+}
+
+export type ScenarioContent = VishingContent | SmishingContent | WhatsAppContent | EmailContent;
 
 export interface Scenario {
   id: string;
@@ -276,6 +303,24 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Contacto desconocido dice ser familiar y pide dinero.',
         alertSignals: ['Número nuevo', 'Urgencia económica'],
         difficulty: 'Medio',
+        content: {
+          type: 'whatsapp',
+          contactName: 'Sobrino Luis',
+          contactNumber: '+51 999 123 456',
+          messages: [
+            { sender: 'them', text: 'Tío, soy Luis. Tuve un problema con mi celular y tuve que cambiar de número.' },
+            { sender: 'them', text: 'Necesito que me prestes S/300 urgentes. Es una emergencia y no le quiero decir a mi mamá todavía.' },
+          ],
+          choices: [
+            { id: 'send', label: 'Le envío el dinero por Yape', isCorrect: false },
+            { id: 'verify', label: 'Llamo al número antiguo de Luis para confirmar', isCorrect: true },
+            { id: 'photo', label: 'Le pido una foto y le envío el dinero', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Muy bien. Verificar por otro medio conocido es la forma más segura de evitar esta estafa.',
+            incorrect: 'Desconfía de números nuevos que piden dinero con urgencia. Llama a la persona por su número habitual.',
+          },
+        },
       },
       {
         id: 'whatsapp-yape-receipt',
@@ -284,6 +329,25 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Alguien envía un comprobante falso por S/180 y pide que entregues el producto.',
         alertSignals: ['Comprobante puede ser editado', 'Presión para entregar'],
         difficulty: 'Difícil',
+        content: {
+          type: 'whatsapp',
+          contactName: 'María L.',
+          contactNumber: '+51 999 777 888',
+          messages: [
+            { sender: 'them', text: 'Hola, ya te Yapeé los S/180 por el producto. Te envío el comprobante.' },
+            { sender: 'them', text: '', isReceipt: true, receiptAmount: 'S/180.00', receiptService: 'Yape' },
+            { sender: 'them', text: '¿Puedes traerme el producto ahora?' },
+          ],
+          choices: [
+            { id: 'deliver', label: 'Le entrego el producto porque ya pagó', isCorrect: false },
+            { id: 'check', label: 'Reviso primero en mi app de banco si llegó el dinero', isCorrect: true },
+            { id: 'ask', label: 'Le pido que me espere un momento', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Excelente. Las capturas y comprobantes pueden ser falsos. Confirma siempre el dinero en tu app de banco.',
+            incorrect: 'Cuidado. Este comprobante es falso. Nunca entregues un producto sin confirmar el pago en tu app oficial.',
+          },
+        },
       },
       {
         id: 'whatsapp-refund',
@@ -292,6 +356,24 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Mensaje de supuesto soporte ofreciendo una devolución.',
         alertSignals: ['Oferta de devolución inesperada', 'Piden datos'],
         difficulty: 'Medio',
+        content: {
+          type: 'whatsapp',
+          contactName: 'Soporte Banco',
+          contactNumber: '+51 999 000 999',
+          messages: [
+            { sender: 'them', text: 'Buenas tardes, somos el área de devoluciones de su banco.' },
+            { sender: 'them', text: 'Usted tiene una devolución pendiente de S/450. Para procesarla, confirme su número de cuenta y DNI.' },
+          ],
+          choices: [
+            { id: 'data', label: 'Envío mi número de cuenta y DNI', isCorrect: false },
+            { id: 'ignore', label: 'Ignoro el mensaje y llamo al banco por otro medio', isCorrect: true },
+            { id: 'ask', label: 'Pido más detalles de la devolución', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Correcto. El banco no te pedirá datos sensibles por WhatsApp. Llama siempre a la línea oficial.',
+            incorrect: 'Nunca compartas datos bancarios o personales por WhatsApp. Los estafadores se hacen pasar por soporte.',
+          },
+        },
       },
       {
         id: 'whatsapp-wrong-transfer',
@@ -300,6 +382,25 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Dicen haberte depositado por error y piden que devuelvas el dinero.',
         alertSignals: ['Historia de error', 'Presión para devolver'],
         difficulty: 'Difícil',
+        content: {
+          type: 'whatsapp',
+          contactName: 'Carlos R.',
+          contactNumber: '+51 999 333 444',
+          messages: [
+            { sender: 'them', text: 'Hola, te deposité S/900 por error. Necesito que me devuelvas el dinero.' },
+            { sender: 'them', text: 'Te envío el comprobante. Por favor, hazme la devolución hoy mismo.' },
+            { sender: 'them', text: '', isReceipt: true, receiptAmount: 'S/900.00', receiptService: 'Transferencia bancaria' },
+          ],
+          choices: [
+            { id: 'return', label: 'Le devuelvo el dinero porque me muestra el comprobante', isCorrect: false },
+            { id: 'bank', label: 'Llamo a mi banco para verificar si recibí ese depósito', isCorrect: true },
+            { id: 'ask-time', label: 'Le pido que me dé un día para revisar', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Muy bien. Antes de devolver dinero, verifica con tu banco si realmente recibiste el depósito.',
+            incorrect: 'Los comprobantes pueden ser falsos. Nunca devuelvas dinero sin confirmar el depósito con tu banco.',
+          },
+        },
       },
       {
         id: 'whatsapp-support-code',
@@ -308,6 +409,24 @@ export const practiceModules: PracticeModule[] = [
         summary: 'WhatsApp de "soporte" pide un código de verificación.',
         alertSignals: ['Soporte no solicita códigos', 'Código de verificación personal'],
         difficulty: 'Fácil',
+        content: {
+          type: 'whatsapp',
+          contactName: 'Soporte WhatsApp',
+          contactNumber: '+51 999 555 666',
+          messages: [
+            { sender: 'them', text: 'Hola, somos soporte de WhatsApp. Tu cuenta será suspendida en 24 horas.' },
+            { sender: 'them', text: 'Para verificar tu identidad, envíanos el código de 6 dígitos que acaba de llegar a tu celular.' },
+          ],
+          choices: [
+            { id: 'send-code', label: 'Le envío el código para no perder mi cuenta', isCorrect: false },
+            { id: 'block', label: 'Bloqueo el número y reporto como estafa', isCorrect: true },
+            { id: 'ask-why', label: 'Le pregunto por qué necesitan el código', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Excelente. WhatsApp nunca te pedirá tu código de verificación. Compartirlo permite que te roben la cuenta.',
+            incorrect: 'Nunca compartas códigos de verificación. Con ellos, un estafador puede tomar el control de tu cuenta.',
+          },
+        },
       },
     ],
   },
@@ -327,6 +446,27 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Correo que advierte bloqueo y pide hacer clic en un enlace.',
         alertSignals: ['Amenaza de bloqueo', 'Enlace para confirmar datos'],
         difficulty: 'Fácil',
+        content: {
+          type: 'email',
+          fromName: 'Banco Seguro',
+          fromEmail: 'seguridad@bancoseguro-seguro.pe',
+          subject: 'Importante: su cuenta ha sido bloqueada',
+          body: [
+            'Estimado cliente,',
+            'Hemos detectado actividad inusual en su cuenta. Para su seguridad, hemos bloqueado el acceso temporalmente.',
+            'Haga clic en el siguiente enlace para verificar sus datos y desbloquear su cuenta.',
+          ],
+          linkText: 'Verificar cuenta ahora',
+          choices: [
+            { id: 'click', label: 'Hago clic en el enlace para verificar', isCorrect: false },
+            { id: 'delete', label: 'Borro el correo y entro a la web oficial del banco', isCorrect: true },
+            { id: 'reply', label: 'Respondo el correo pidiendo ayuda', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Muy bien. Los bancos no piden verificar datos por correo. Entra siempre por la web oficial.',
+            incorrect: 'El enlace podría ser falso y robar tus datos. Nunca ingreses información desde enlaces de correos sospechosos.',
+          },
+        },
       },
       {
         id: 'phishing-public-institution',
@@ -335,6 +475,27 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Correo de supuesta SUNAT o entidad pública solicitando datos.',
         alertSignals: ['Remitente dudoso', 'Solicitud de datos personales'],
         difficulty: 'Medio',
+        content: {
+          type: 'email',
+          fromName: 'SUNAT - Notificaciones',
+          fromEmail: 'notificaciones@sunnat-gob.pe',
+          subject: 'Tiene una deuda pendiente',
+          body: [
+            'Estimado contribuyente,',
+            'Usted tiene una deuda de S/1,250 pendiente. Para evitar embargos, descargue el documento adjunto y confirme sus datos.',
+            'El plazo vence en 24 horas.',
+          ],
+          attachmentName: 'deuda_SUNAT.pdf',
+          choices: [
+            { id: 'download', label: 'Descargo el archivo adjunto', isCorrect: false },
+            { id: 'official', label: 'Entro directamente a sunat.gob.pe en mi navegador', isCorrect: true },
+            { id: 'reply', label: 'Respondo el correo solicitando información', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Correcto. Las instituciones públicas no envían deudas ni adjuntos por correo. Entra siempre al sitio oficial.',
+            incorrect: 'Los archivos adjuntos de correos falsos pueden contener virus o robar información. No los descargues.',
+          },
+        },
       },
       {
         id: 'phishing-promotion',
@@ -343,6 +504,26 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Correo de oferta o premio con un botón llamativo.',
         alertSignals: ['Oferta demasiado buena', 'Botón para reclamar'],
         difficulty: 'Fácil',
+        content: {
+          type: 'email',
+          fromName: 'Supermercado Ofertas',
+          fromEmail: 'promociones@superofertas-premios.pe',
+          subject: '¡Ganaste una gift card de S/500!',
+          body: [
+            '¡Felicidades! Has sido seleccionado como ganador de una gift card de S/500.',
+            'Solo ingresa tus datos personales y realiza el pago de S/15 por envío para reclamar tu premio.',
+          ],
+          linkText: 'Reclamar premio',
+          choices: [
+            { id: 'claim', label: 'Hago clic y completo mis datos', isCorrect: false },
+            { id: 'delete', label: 'Elimino el correo porque no participé en ningún sorteo', isCorrect: true },
+            { id: 'forward', label: 'Lo reenvío a mis familiares por si también ganan', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Bien. Si no participaste en un sorteo, el premio no existe. Los premios reales no te piden dinero por adelantado.',
+            incorrect: 'Los premios falsos buscan robar tus datos o tu dinero. No hagas clic ni compartas estos correos.',
+          },
+        },
       },
       {
         id: 'phishing-attachment',
@@ -351,6 +532,26 @@ export const practiceModules: PracticeModule[] = [
         summary: 'Correo con archivo adjunto inesperado.',
         alertSignals: ['Adjunto no esperado', 'Remitente desconocido'],
         difficulty: 'Medio',
+        content: {
+          type: 'email',
+          fromName: 'Recursos Humanos',
+          fromEmail: 'rrhh@empresa-desconocida.pe',
+          subject: 'Contrato actualizado',
+          body: [
+            'Estimado colaborador,',
+            'Adjunto encontrará su contrato actualizado. Por favor, revíselo y envíenos sus datos actualizados a la brevedad.',
+          ],
+          attachmentName: 'contrato.zip',
+          choices: [
+            { id: 'download', label: 'Descargo el archivo para revisarlo', isCorrect: false },
+            { id: 'ignore', label: 'No abro adjuntos inesperados de remitentes desconocidos', isCorrect: true },
+            { id: 'reply', label: 'Respondo preguntando quién me lo envió', isCorrect: false },
+          ],
+          feedback: {
+            correct: 'Correcto. No debes abrir archivos adjuntos inesperados, especialmente de remitentes que no conoces.',
+            incorrect: 'Los archivos comprimidos como .zip pueden contener virus. Nunca los abras si no esperabas el correo.',
+          },
+        },
       },
     ],
   },
