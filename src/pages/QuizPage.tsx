@@ -6,11 +6,14 @@ import { Badge } from '@/components/ui/Badge';
 import { Info, CheckCircle2, XCircle } from 'lucide-react';
 import { quizQuestions } from '@/data/quizQuestions';
 import { useProgress } from '@/hooks/useProgress';
+import { useSettings } from '@/hooks/useSettings';
+import { playFeedbackSound } from '@/utils/sound';
 import { QuizVisual } from '@/components/quiz/QuizVisual';
 
 export function QuizPage() {
   const navigate = useNavigate();
   const { recordQuizResult } = useProgress();
+  const { settings } = useSettings();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
@@ -32,8 +35,13 @@ export function QuizPage() {
       setShowFeedback(true);
 
       const choice = question.choices.find((c) => c.id === choiceId);
-      if (choice?.isCorrect) {
-        setScore((prev) => prev + 1);
+      if (choice) {
+        if (settings.sound) {
+          playFeedbackSound(choice.isCorrect);
+        }
+        if (choice.isCorrect) {
+          setScore((prev) => prev + 1);
+        }
       }
     },
     [question, showFeedback]

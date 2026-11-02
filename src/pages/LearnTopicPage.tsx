@@ -1,8 +1,10 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Phone, MessageSquare, MessageCircle, Mail, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Phone, MessageSquare, MessageCircle, Mail, CheckCircle, Volume2 } from 'lucide-react';
 import { getTopicById } from '@/data/learnContent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useSettings } from '@/hooks/useSettings';
+import { useSpeech } from '@/hooks/useSpeech';
 
 const iconMap: Record<string, React.ElementType> = {
   AlertTriangle,
@@ -16,12 +18,24 @@ const iconMap: Record<string, React.ElementType> = {
 export function LearnTopicPage() {
   const { topicId } = useParams<{ topicId: string }>();
   const topic = topicId ? getTopicById(topicId) : undefined;
+  const { settings } = useSettings();
+  const { supported: speechSupported, speak } = useSpeech();
 
   if (!topic) {
     return <Navigate to="/aprende" replace />;
   }
 
   const Icon = iconMap[topic.icon] || AlertTriangle;
+
+  const fullText = [
+    topic.title,
+    topic.description,
+    ...topic.sections.flatMap((section) => [
+      section.heading,
+      ...section.paragraphs,
+      ...(section.tips ? ['Consejos clave', ...section.tips] : []),
+    ]),
+  ].join('. ');
 
   return (
     <div className="space-y-6">
@@ -34,10 +48,21 @@ export function LearnTopicPage() {
         <div className={`shrink-0 p-4 rounded-2xl ${topic.bg}`}>
           <Icon size={40} className={topic.color} aria-hidden="true" />
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <h2 className="page-title">{topic.title}</h2>
           <p className="page-subtitle">{topic.description}</p>
         </div>
+        {settings.audioInstructions && speechSupported && (
+          <Button
+            variant="outline"
+            size="sm"
+            aria-label="Escuchar contenido en voz alta"
+            onClick={() => speak(fullText)}
+            leftIcon={<Volume2 size={20} />}
+          >
+            Escuchar
+          </Button>
+        )}
       </section>
 
       <div className="space-y-4">

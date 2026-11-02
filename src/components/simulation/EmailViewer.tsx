@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { RefreshCw, Paperclip, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useSettings } from '@/hooks/useSettings';
+import { playFeedbackSound } from '@/utils/sound';
 import type { EmailContent } from '@/data/practiceScenarios';
 
 interface EmailViewerProps {
@@ -15,8 +17,10 @@ type ScreenState = 'email' | 'feedback';
 export function EmailViewer({ content, onComplete, onRestart }: EmailViewerProps) {
   const [screen, setScreen] = useState<ScreenState>('email');
   const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
+  const { settings } = useSettings();
 
   const handleChoice = (isCorrect: boolean) => {
+    if (settings.sound) playFeedbackSound(isCorrect);
     setFeedbackCorrect(isCorrect);
     setScreen('feedback');
     onComplete(isCorrect);

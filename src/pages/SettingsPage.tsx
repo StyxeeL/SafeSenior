@@ -5,7 +5,10 @@ import { Toggle } from '@/components/ui/Toggle';
 import { Modal } from '@/components/ui/Modal';
 import { useSettings } from '@/hooks/useSettings';
 import { useProgress } from '@/hooks/useProgress';
-import { Type, HelpCircle, Trash2 } from 'lucide-react';
+import { useSpeech } from '@/hooks/useSpeech';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { InstallButton } from '@/components/pwa/InstallButton';
+import { Type, HelpCircle, Trash2, Volume2, VolumeX, Download } from 'lucide-react';
 import type { FontSize } from '@/types';
 
 const fontSizeOptions: { value: FontSize; label: string }[] = [
@@ -47,6 +50,8 @@ export function SettingsPage() {
   } = useSettings();
 
   const { resetProgress } = useProgress();
+  const { supported: speechSupported, speak, cancel } = useSpeech();
+  const { isSupported, isInstalled } = useInstallPrompt();
   const [showResetModal, setShowResetModal] = useState(false);
 
   return (
@@ -100,6 +105,36 @@ export function SettingsPage() {
           checked={settings.audioInstructions}
           onChange={toggleAudioInstructions}
         />
+        {settings.audioInstructions && (
+          <div className="flex flex-wrap gap-3 pt-2">
+            {speechSupported ? (
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<Volume2 size={20} />}
+                onClick={() =>
+                  speak(
+                    'Has activado las instrucciones por audio. SafeSenior te ayudará a reconocer estafas digitales.'
+                  )
+                }
+              >
+                Probar audio
+              </Button>
+            ) : (
+              <p className="text-text-muted">
+                Tu navegador no permite reproducción de audio.
+              </p>
+            )}
+            <Button
+              variant="ghost"
+              size="md"
+              leftIcon={<VolumeX size={20} />}
+              onClick={cancel}
+            >
+              Detener audio
+            </Button>
+          </div>
+        )}
       </Card>
 
       <Card>
@@ -111,6 +146,19 @@ export function SettingsPage() {
           Borrar mi progreso
         </Button>
       </Card>
+
+      {isSupported && !isInstalled && (
+        <Card className="bg-primary-light border-primary/20">
+          <h3 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
+            <Download size={24} aria-hidden="true" />
+            Instalar SafeSenior
+          </h3>
+          <p className="text-text mb-4">
+            Instala la aplicación en tu dispositivo para acceder más rápido y usarla sin internet.
+          </p>
+          <InstallButton variant="primary" />
+        </Card>
+      )}
 
       <Card className="bg-primary-light border-primary/20">
         <h3 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">

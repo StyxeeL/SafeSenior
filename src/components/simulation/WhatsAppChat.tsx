@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { RefreshCw, User, CheckCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useSettings } from '@/hooks/useSettings';
+import { playFeedbackSound } from '@/utils/sound';
 import type { WhatsAppContent } from '@/data/practiceScenarios';
 
 interface WhatsAppChatProps {
@@ -37,8 +39,10 @@ function ReceiptBubble({
 export function WhatsAppChat({ content, onComplete, onRestart }: WhatsAppChatProps) {
   const [screen, setScreen] = useState<ScreenState>('chat');
   const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
+  const { settings } = useSettings();
 
   const handleChoice = (isCorrect: boolean) => {
+    if (settings.sound) playFeedbackSound(isCorrect);
     setFeedbackCorrect(isCorrect);
     setScreen('feedback');
     onComplete(isCorrect);

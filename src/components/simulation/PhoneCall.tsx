@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { PhoneOff, Phone, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useSettings } from '@/hooks/useSettings';
+import { playFeedbackSound } from '@/utils/sound';
 import type { VishingContent } from '@/data/practiceScenarios';
 
 interface PhoneCallProps {
@@ -16,6 +18,7 @@ export function PhoneCall({ content, onComplete, onRestart }: PhoneCallProps) {
   const [screen, setScreen] = useState<ScreenState>('incoming');
   const [lineIndex, setLineIndex] = useState(0);
   const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
+  const { settings } = useSettings();
 
   const handleAnswer = () => {
     setScreen('call');
@@ -23,6 +26,7 @@ export function PhoneCall({ content, onComplete, onRestart }: PhoneCallProps) {
   };
 
   const handleHangUp = () => {
+    if (settings.sound) playFeedbackSound(true);
     setFeedbackCorrect(true);
     setScreen('feedback');
     onComplete(true);
@@ -35,6 +39,7 @@ export function PhoneCall({ content, onComplete, onRestart }: PhoneCallProps) {
   };
 
   const handleChoice = (isCorrect: boolean) => {
+    if (settings.sound) playFeedbackSound(isCorrect);
     setFeedbackCorrect(isCorrect);
     setScreen('feedback');
     onComplete(isCorrect);

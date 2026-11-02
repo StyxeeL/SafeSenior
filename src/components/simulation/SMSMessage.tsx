@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { RefreshCw, User } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { useSettings } from '@/hooks/useSettings';
+import { playFeedbackSound } from '@/utils/sound';
 import type { SmishingContent } from '@/data/practiceScenarios';
 
 interface SMSMessageProps {
@@ -15,8 +17,10 @@ type ScreenState = 'messages' | 'feedback';
 export function SMSMessage({ content, onComplete, onRestart }: SMSMessageProps) {
   const [screen, setScreen] = useState<ScreenState>('messages');
   const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
+  const { settings } = useSettings();
 
   const handleChoice = (isCorrect: boolean) => {
+    if (settings.sound) playFeedbackSound(isCorrect);
     setFeedbackCorrect(isCorrect);
     setScreen('feedback');
     onComplete(isCorrect);

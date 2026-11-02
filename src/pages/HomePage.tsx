@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { Shield, Play, ClipboardCheck, BookOpen } from 'lucide-react';
+import { Shield, Play, ClipboardCheck, BookOpen, Download } from 'lucide-react';
 import { useProgress } from '@/hooks/useProgress';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { practiceModules } from '@/data/practiceScenarios';
+import { InstallButton } from '@/components/pwa/InstallButton';
 
 export function HomePage() {
   const { stats } = useProgress();
+  const { isSupported, isInstalled } = useInstallPrompt();
 
   const totalExercises = stats.totalScenarios + stats.totalQuizzes;
   const hasProgress = totalExercises > 0;
@@ -27,6 +30,25 @@ export function HomePage() {
           Aprende a reconocer estafas digitales de forma sencilla y segura.
         </p>
       </section>
+
+      {isSupported && !isInstalled && (
+        <Card className="bg-primary-light border-primary/20">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-primary rounded-2xl shrink-0">
+              <Download size={28} className="text-white" aria-hidden="true" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-primary mb-1">
+                ¿Quieres tener SafeSenior a mano?
+              </h3>
+              <p className="text-text mb-4">
+                Instálalo en tu celular para abrirlo rápido, incluso sin internet.
+              </p>
+              <InstallButton />
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Link to="/practica" className="block">
