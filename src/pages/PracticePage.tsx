@@ -1,46 +1,13 @@
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
-import { Phone, MessageSquare, MessageCircle, Mail, ChevronRight } from 'lucide-react';
-
-const modules = [
-  {
-    id: 'vishing',
-    title: 'Llamadas falsas',
-    subtitle: 'Vishing',
-    description: 'Simula llamadas de personas que intentan engañarte.',
-    icon: Phone,
-    color: 'text-primary',
-    bg: 'bg-primary-light',
-  },
-  {
-    id: 'smishing',
-    title: 'SMS falsos',
-    subtitle: 'Smishing',
-    description: 'Identifica mensajes de texto sospechosos.',
-    icon: MessageSquare,
-    color: 'text-success',
-    bg: 'bg-green-100',
-  },
-  {
-    id: 'whatsapp',
-    title: 'WhatsApp falsos',
-    subtitle: 'WhatsApp',
-    description: 'Reconoce mensajes y comprobantes falsos.',
-    icon: MessageCircle,
-    color: 'text-warning',
-    bg: 'bg-yellow-100',
-  },
-  {
-    id: 'phishing',
-    title: 'Correos falsos',
-    subtitle: 'Phishing',
-    description: 'Aprende a detectar correos engañosos.',
-    icon: Mail,
-    color: 'text-danger',
-    bg: 'bg-red-100',
-  },
-];
+import { ProgressBar } from '@/components/ui/ProgressBar';
+import { ChevronRight } from 'lucide-react';
+import { practiceModules } from '@/data/practiceScenarios';
+import { useProgress } from '@/hooks/useProgress';
 
 export function PracticePage() {
+  const { stats } = useProgress();
+
   return (
     <div className="space-y-6">
       <section>
@@ -51,27 +18,32 @@ export function PracticePage() {
       </section>
 
       <div className="grid gap-4">
-        {modules.map((module) => (
-          <Card
-            key={module.id}
-            className="flex items-center gap-4 hover:border-primary"
-            role="button"
-            aria-label={`Abrir módulo ${module.title}`}
-            onClick={() => {
-              // Módulos se activarán en fases posteriores.
-            }}
-          >
-            <div className={`shrink-0 p-4 rounded-2xl ${module.bg}`}>
-              <module.icon size={32} className={module.color} aria-hidden="true" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-text-muted font-medium">{module.subtitle}</p>
-              <h3 className="text-xl font-bold text-text">{module.title}</h3>
-              <p className="text-text-muted mt-1">{module.description}</p>
-            </div>
-            <ChevronRight size={28} className="text-text-muted shrink-0" aria-hidden="true" />
-          </Card>
-        ))}
+        {practiceModules.map((module) => {
+          const moduleStats = stats.byModule[module.id];
+          const progressPercentage =
+            module.scenarios.length > 0
+              ? Math.round((moduleStats.completed / module.scenarios.length) * 100)
+              : 0;
+
+          return (
+            <Link key={module.id} to={`/practica/${module.id}`} className="block">
+              <Card className="hover:border-primary">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className={`shrink-0 p-4 rounded-2xl ${module.bg}`}>
+                    <module.icon size={32} className={module.color} aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-text-muted font-medium">{module.subtitle}</p>
+                    <h3 className="text-xl font-bold text-text">{module.title}</h3>
+                  </div>
+                  <ChevronRight size={28} className="text-text-muted shrink-0" aria-hidden="true" />
+                </div>
+                <p className="text-text-muted mb-3">{module.description}</p>
+                <ProgressBar value={progressPercentage} label={`${moduleStats.completed} de ${module.scenarios.length} escenarios`} />
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

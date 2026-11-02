@@ -1,14 +1,40 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Toggle } from '@/components/ui/Toggle';
+import { Modal } from '@/components/ui/Modal';
 import { useSettings } from '@/hooks/useSettings';
-import { Type, HelpCircle } from 'lucide-react';
+import { useProgress } from '@/hooks/useProgress';
+import { Type, HelpCircle, Trash2 } from 'lucide-react';
 import type { FontSize } from '@/types';
 
 const fontSizeOptions: { value: FontSize; label: string }[] = [
   { value: 'normal', label: 'Normal' },
   { value: 'large', label: 'Grande' },
   { value: 'xlarge', label: 'Muy grande' },
+];
+
+const faqs = [
+  {
+    question: '¿SafeSenior realiza llamadas o envía mensajes reales?',
+    answer:
+      'No. Todos los ejercicios son simulaciones educativas ficticias. No se realizan llamadas, mensajes ni transferencias reales.',
+  },
+  {
+    question: '¿Mis datos están seguros?',
+    answer:
+      'Sí. La aplicación no solicita contraseñas, códigos OTP ni datos bancarios reales. Tu progreso se guarda solo en tu dispositivo.',
+  },
+  {
+    question: '¿Puedo repetir los ejercicios?',
+    answer:
+      'Sí, puedes repetir todos los ejercicios y evaluaciones las veces que quieras. No hay penalizaciones.',
+  },
+  {
+    question: '¿La aplicación funciona sin internet?',
+    answer:
+      'En una fase posterior se implementará el funcionamiento offline como aplicación web progresiva (PWA).',
+  },
 ];
 
 export function SettingsPage() {
@@ -19,6 +45,9 @@ export function SettingsPage() {
     toggleSound,
     toggleAudioInstructions,
   } = useSettings();
+
+  const { resetProgress } = useProgress();
+  const [showResetModal, setShowResetModal] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -73,19 +102,56 @@ export function SettingsPage() {
         />
       </Card>
 
+      <Card>
+        <h3 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
+          <Trash2 size={24} aria-hidden="true" />
+          Progreso
+        </h3>
+        <Button variant="danger" fullWidth onClick={() => setShowResetModal(true)}>
+          Borrar mi progreso
+        </Button>
+      </Card>
+
       <Card className="bg-primary-light border-primary/20">
         <h3 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
           <HelpCircle size={24} aria-hidden="true" />
-          ¿Necesitas ayuda?
+          Preguntas frecuentes
         </h3>
-        <p className="text-text mb-4">
-          SafeSenior es una aplicación educativa. Los ejercicios son simulaciones
-          ficticias. No realizamos llamadas, mensajes ni transferencias reales.
-        </p>
-        <Button variant="outline" fullWidth>
-          Ver preguntas frecuentes
-        </Button>
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <div key={index}>
+              <p className="font-bold text-text">{faq.question}</p>
+              <p className="text-text-muted mt-1">{faq.answer}</p>
+            </div>
+          ))}
+        </div>
       </Card>
+
+      <Modal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        title="¿Borrar progreso?"
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setShowResetModal(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                resetProgress();
+                setShowResetModal(false);
+              }}
+            >
+              Sí, borrar
+            </Button>
+          </>
+        }
+      >
+        <p className="text-text">
+          Esta acción eliminará todo tu progreso de ejercicios y evaluaciones. No se puede deshacer.
+        </p>
+      </Modal>
     </div>
   );
 }

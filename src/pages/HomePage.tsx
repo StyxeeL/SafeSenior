@@ -1,9 +1,21 @@
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { Shield, Play, ClipboardCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Shield, Play, ClipboardCheck, BookOpen } from 'lucide-react';
+import { useProgress } from '@/hooks/useProgress';
+import { practiceModules } from '@/data/practiceScenarios';
 
 export function HomePage() {
+  const { stats } = useProgress();
+
+  const totalExercises = stats.totalScenarios + stats.totalQuizzes;
+  const hasProgress = totalExercises > 0;
+
+  const firstIncompleteModule = practiceModules.find((module) => {
+    const moduleStats = stats.byModule[module.id];
+    return moduleStats.completed < module.scenarios.length;
+  });
+
   return (
     <div className="space-y-6">
       <section className="text-center py-6">
@@ -34,13 +46,37 @@ export function HomePage() {
         </Link>
       </div>
 
+      {firstIncompleteModule && (
+        <Link to={`/practica/${firstIncompleteModule.id}`} className="block">
+          <Card className="flex items-center gap-4 bg-primary-light border-primary/20 hover:border-primary">
+            <Play size={32} className="text-primary" aria-hidden="true" />
+            <div className="flex-1">
+              <p className="text-primary font-semibold">Continuar donde quedaste</p>
+              <p className="text-text">Módulo: {firstIncompleteModule.title}</p>
+            </div>
+          </Card>
+        </Link>
+      )}
+
       <Card>
         <h3 className="text-xl font-bold text-text mb-4">Tu progreso</h3>
-        <ProgressBar value={0} label="Progreso general" />
+        <ProgressBar value={stats.accuracyPercentage} label="Progreso general" />
         <p className="text-text-muted mt-4">
-          Aún no has completado ejercicios. ¡Empieza practicando hoy!
+          {hasProgress
+            ? `Has realizado ${totalExercises} ejercicio${totalExercises !== 1 ? 's' : ''} con un ${stats.accuracyPercentage}% de aciertos.`
+            : 'Aún no has completado ejercicios. ¡Empieza practicando hoy!'}
         </p>
       </Card>
+
+      <Link to="/aprende" className="block">
+        <Card className="flex items-center gap-4 hover:border-primary">
+          <BookOpen size={32} className="text-primary" aria-hidden="true" />
+          <div>
+            <h3 className="text-xl font-bold text-text">Aprender más</h3>
+            <p className="text-text-muted">Conoce las señales de alerta antes de practicar.</p>
+          </div>
+        </Card>
+      </Link>
 
       <Card className="bg-primary-light border-primary/20">
         <h3 className="text-xl font-bold text-primary mb-2">Consejo del día</h3>

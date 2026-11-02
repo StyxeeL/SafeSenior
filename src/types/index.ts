@@ -29,6 +29,14 @@ export interface ModuleProgress {
 
 export interface UserProgress {
   modules: ModuleProgress[];
+  quizzes: QuizResult[];
+}
+
+export interface QuizResult {
+  quizId: string;
+  score: number;
+  total: number;
+  completedAt: string;
 }
 
 export type RouteSection =
