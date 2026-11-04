@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   fontSize: 'normal',
   highContrast: false,
   sound: false,
-  audioInstructions: false,
+  audioInstructions: true,
 };
 
 export interface ScenarioProgress {
