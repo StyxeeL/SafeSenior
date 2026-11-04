@@ -3,6 +3,8 @@ import {
   getProgress,
   recordScenarioAttempt as recordScenarioAttemptService,
   recordQuizResult as recordQuizResultService,
+  recordTopicCompleted as recordTopicCompletedService,
+  isTopicCompleted as isTopicCompletedService,
   resetProgress as resetProgressService,
   calculateStats,
 } from '@/services/progress';
@@ -24,6 +26,21 @@ export function useProgress() {
     [refresh]
   );
 
+  const recordTopicCompleted = useCallback(
+    (topicId: string) => {
+      recordTopicCompletedService(topicId);
+      refresh();
+    },
+    [refresh]
+  );
+
+  const isTopicCompleted = useCallback(
+    (topicId: string) => {
+      return isTopicCompletedService(topicId);
+    },
+    []
+  );
+
   const recordQuizResult = useCallback(
     (quizId: string, score: number, total: number) => {
       recordQuizResultService(quizId, score, total);
@@ -43,6 +60,8 @@ export function useProgress() {
     progress,
     stats,
     recordScenarioAttempt,
+    recordTopicCompleted,
+    isTopicCompleted,
     recordQuizResult,
     resetProgress,
     refresh,

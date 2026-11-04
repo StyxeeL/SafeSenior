@@ -1,10 +1,22 @@
-import { useParams, Navigate, Link } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Phone, MessageSquare, MessageCircle, Mail, CheckCircle, Volume2, VolumeX } from 'lucide-react';
+import { useParams, Navigate, Link, useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft,
+  AlertTriangle,
+  Phone,
+  MessageSquare,
+  MessageCircle,
+  Mail,
+  CheckCircle,
+  Volume2,
+  VolumeX,
+  CheckCircle2,
+} from 'lucide-react';
 import { getTopicById } from '@/data/learnContent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { useSettings } from '@/hooks/useSettings';
 import { useSpeech } from '@/hooks/useSpeech';
+import { useProgress } from '@/hooks/useProgress';
 
 const iconMap: Record<string, React.ElementType> = {
   AlertTriangle,
@@ -17,14 +29,17 @@ const iconMap: Record<string, React.ElementType> = {
 
 export function LearnTopicPage() {
   const { topicId } = useParams<{ topicId: string }>();
+  const navigate = useNavigate();
   const topic = topicId ? getTopicById(topicId) : undefined;
   const { settings } = useSettings();
   const { supported: speechSupported, speaking, toggle } = useSpeech();
+  const { recordTopicCompleted, isTopicCompleted } = useProgress();
 
   if (!topic) {
-    return <Navigate to="/aprende" replace />;
+    return <Navigate to="/" replace />;
   }
 
+  const isCompleted = isTopicCompleted(topic.id);
   const Icon = iconMap[topic.icon] || AlertTriangle;
 
   const fullText = [
@@ -37,11 +52,16 @@ export function LearnTopicPage() {
     ]),
   ].join('. ');
 
+  const handleFinish = () => {
+    recordTopicCompleted(topic.id);
+    navigate('/');
+  };
+
   return (
     <div className="space-y-6">
-      <Link to="/aprende" className="inline-flex items-center gap-2 text-primary font-semibold">
+      <Link to="/" className="inline-flex items-center gap-2 text-primary font-semibold text-lg">
         <ArrowLeft size={24} aria-hidden="true" />
-        Volver a Aprende
+        Volver a mi camino
       </Link>
 
       <section className="flex items-center gap-4">
@@ -49,7 +69,14 @@ export function LearnTopicPage() {
           <Icon size={40} className={topic.color} aria-hidden="true" />
         </div>
         <div className="flex-1 min-w-0">
-          <h2 className="page-title">{topic.title}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="page-title">{topic.title}</h2>
+            {isCompleted && (
+              <span className="inline-flex items-center gap-1 text-sm bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
+                <CheckCircle2 size={16} /> Leído
+              </span>
+            )}
+          </div>
           <p className="page-subtitle">{topic.description}</p>
         </div>
         {settings.audioInstructions && speechSupported && (
@@ -71,15 +98,15 @@ export function LearnTopicPage() {
             <h3 className="text-xl font-bold text-text mb-3">{section.heading}</h3>
             <div className="space-y-3">
               {section.paragraphs.map((paragraph, pIndex) => (
-                <p key={pIndex} className="text-text leading-relaxed">
+                <p key={pIndex} className="text-text leading-relaxed text-lg">
                   {paragraph}
                 </p>
               ))}
             </div>
             {section.tips && section.tips.length > 0 && (
               <div className="mt-4 p-4 bg-primary-light rounded-xl">
-                <p className="font-bold text-primary mb-2">Consejos clave</p>
-                <ul className="list-disc list-inside space-y-1 text-text">
+                <p className="font-bold text-primary mb-2 text-lg">Consejos clave</p>
+                <ul className="list-disc list-inside space-y-2 text-text text-lg">
                   {section.tips.map((tip, tIndex) => (
                     <li key={tIndex}>{tip}</li>
                   ))}
@@ -90,15 +117,10 @@ export function LearnTopicPage() {
         ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Link to="/practica" className="flex-1">
-          <Button fullWidth>Practicar este tema</Button>
-        </Link>
-        <Link to="/evaluame" className="flex-1">
-          <Button variant="outline" fullWidth>
-            Evaluarme
-          </Button>
-        </Link>
+      <div className="pt-4 space-y-3">
+        <Button fullWidth size="lg" onClick={handleFinish} leftIcon={<CheckCircle2 size={24} />}>
+          {isCompleted ? 'Volver a mi camino' : '¡Entendido! Completar y continuar mi camino'}
+        </Button>
       </div>
     </div>
   );

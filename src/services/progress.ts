@@ -8,11 +8,16 @@ export function getEmptyProgress(): UserProgress {
   return {
     modules: [],
     quizzes: [],
+    completedTopics: [],
   };
 }
 
 export function getProgress(): UserProgress {
-  return getItem<UserProgress>(PROGRESS_KEY, getEmptyProgress());
+  const data = getItem<UserProgress>(PROGRESS_KEY, getEmptyProgress());
+  if (!data.completedTopics) {
+    data.completedTopics = [];
+  }
+  return data;
 }
 
 export function saveProgress(progress: UserProgress): void {
@@ -46,12 +51,32 @@ export function recordScenarioAttempt(
   const module = findOrCreateModule(progress, moduleId);
   const scenario = findOrCreateScenario(module, scenarioId);
 
-  scenario.completed = true;
+  // Solo se marca como completado si la respuesta fue CORRECTA.
+  // Si marcó mal, completed se mantiene falso (a menos que ya hubiera sido completado antes correctamente).
+  if (correct) {
+    scenario.completed = true;
+  }
   scenario.attempts += 1;
   scenario.correct = correct;
   scenario.lastAttemptAt = new Date().toISOString();
 
   saveProgress(progress);
+}
+
+export function recordTopicCompleted(topicId: string): void {
+  const progress = getProgress();
+  if (!progress.completedTopics) {
+    progress.completedTopics = [];
+  }
+  if (!progress.completedTopics.includes(topicId)) {
+    progress.completedTopics.push(topicId);
+    saveProgress(progress);
+  }
+}
+
+export function isTopicCompleted(topicId: string): boolean {
+  const progress = getProgress();
+  return Boolean(progress.completedTopics?.includes(topicId));
 }
 
 export function recordQuizResult(quizId: string, score: number, total: number): void {
@@ -95,14 +120,20 @@ export function calculateStats(progress: UserProgress = getProgress()) {
   for (const module of progress.modules) {
     for (const scenario of module.scenarios) {
       totalScenarios += 1;
-      byModule[module.moduleId].total += 1;
+      if (byModule[module.moduleId]) {
+        byModule[module.moduleId].total += 1;
+      }
       if (scenario.completed) {
         completedScenarios += 1;
-        byModule[module.moduleId].completed += 1;
+        if (byModule[module.moduleId]) {
+          byModule[module.moduleId].completed += 1;
+        }
       }
       if (scenario.correct) {
         correctScenarios += 1;
-        byModule[module.moduleId].correct += 1;
+        if (byModule[module.moduleId]) {
+          byModule[module.moduleId].correct += 1;
+        }
       }
     }
   }
@@ -122,6 +153,7 @@ export function calculateStats(progress: UserProgress = getProgress()) {
     totalQuizzes,
     quizAnswersCorrect,
     quizAnswersTotal,
+    completedTopics: progress.completedTopics || [],
     accuracyPercentage: totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0,
   };
 }

@@ -1,116 +1,115 @@
-import { useState } from 'react';
-import { RefreshCw, Paperclip, AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useSettings } from '@/hooks/useSettings';
-import { playFeedbackSound } from '@/utils/sound';
+import {
+  ArrowLeft,
+  Archive,
+  Trash2,
+  Mail,
+  MoreVertical,
+  Paperclip,
+  Reply,
+  Forward,
+  Star,
+  ExternalLink,
+} from 'lucide-react';
+import { PhoneFrame } from './PhoneFrame';
 import type { EmailContent } from '@/data/practiceScenarios';
 
 interface EmailViewerProps {
   content: EmailContent;
-  onComplete: (correct: boolean) => void;
-  onRestart: () => void;
 }
 
-type ScreenState = 'email' | 'feedback';
-
-export function EmailViewer({ content, onComplete, onRestart }: EmailViewerProps) {
-  const [screen, setScreen] = useState<ScreenState>('email');
-  const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
-  const { settings } = useSettings();
-
-  const handleChoice = (isCorrect: boolean) => {
-    if (settings.sound) playFeedbackSound(isCorrect);
-    setFeedbackCorrect(isCorrect);
-    setScreen('feedback');
-    onComplete(isCorrect);
-  };
-
-  if (screen === 'feedback' && feedbackCorrect !== null) {
-    const feedbackText = feedbackCorrect ? content.feedback.correct : content.feedback.incorrect;
-    return (
-      <Card className={feedbackCorrect ? 'bg-green-50 border-success' : 'bg-red-50 border-danger'}>
-        <div className="text-center py-4">
-          <p className={`text-2xl font-bold mb-3 ${feedbackCorrect ? 'text-success' : 'text-danger'}`}>
-            {feedbackCorrect ? '¡Buena decisión!' : 'Cuidado con este correo'}
-          </p>
-          <p className="text-text text-lg mb-6">{feedbackText}</p>
-          <Button onClick={onRestart} leftIcon={<RefreshCw size={24} />}>
-            Repetir ejercicio
-          </Button>
-        </div>
-      </Card>
-    );
-  }
+export function EmailViewer({ content }: EmailViewerProps) {
+  const senderInitial = content.fromName ? content.fromName.charAt(0).toUpperCase() : 'B';
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-      <div className="bg-red-600 text-white px-4 py-2 flex items-center gap-2">
-        <AlertTriangle size={20} aria-hidden="true" />
-        <span className="font-bold text-sm">SIMULACIÓN EDUCATIVA — ESTE CORREO NO ES REAL</span>
-      </div>
-
-      <div className="p-4 sm:p-6 border-b border-gray-200">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg shrink-0">
-            {content.fromName.charAt(0)}
-          </div>
-          <div className="min-w-0">
-            <p className="font-bold text-text truncate">{content.fromName}</p>
-            <p className="text-sm text-text-muted truncate">&lt;{content.fromEmail}&gt;</p>
-          </div>
-        </div>
-
-        <h2 className="text-xl font-bold text-text mb-2">{content.subject}</h2>
-        <div className="text-sm text-text-muted space-y-1">
-          <p><span className="font-semibold">Para:</span> usted@ejemplo.pe</p>
-          <p><span className="font-semibold">Fecha:</span> Hoy, 10:30 a. m.</p>
+    <PhoneFrame theme="light">
+      {/* Barra Superior estilo Gmail Mobile */}
+      <div className="bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between text-gray-700 shrink-0">
+        <ArrowLeft size={20} className="text-gray-700" />
+        <div className="flex items-center gap-3">
+          <Archive size={18} />
+          <Trash2 size={18} />
+          <Mail size={18} />
+          <MoreVertical size={18} />
         </div>
       </div>
 
-      <div className="p-4 sm:p-6 min-h-[200px]">
-        <div className="space-y-4 text-text text-lg leading-relaxed">
+      {/* Contenido del Correo Electrónico */}
+      <div className="flex-1 bg-white p-3.5 overflow-y-auto space-y-3 text-left">
+        {/* Asunto y Etiqueta */}
+        <div>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-base font-extrabold text-gray-900 leading-snug">
+              {content.subject}
+            </h3>
+            <Star size={18} className="text-gray-300 shrink-0 mt-0.5" />
+          </div>
+          <span className="inline-block mt-1 text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+            Recibidos
+          </span>
+        </div>
+
+        {/* Fila del Remitente */}
+        <div className="flex items-start gap-2.5 pt-1 border-t border-gray-100">
+          <div className="w-9 h-9 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">
+            {senderInitial}
+          </div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-sm text-gray-900 truncate">{content.fromName}</p>
+              <span className="text-[11px] text-gray-400">10:30 a. m.</span>
+            </div>
+            <p className="text-[11px] text-gray-500 truncate font-mono mt-0.5">
+              {content.fromEmail}
+            </p>
+            <p className="text-[10px] text-gray-400 mt-0.5">para mí ▼</p>
+          </div>
+        </div>
+
+        {/* Cuerpo del Correo */}
+        <div className="pt-2 pb-3 space-y-2.5 border-t border-gray-100 text-gray-800 text-[13px] leading-relaxed">
           {content.body.map((paragraph, index) => (
             <p key={index}>{paragraph}</p>
           ))}
-        </div>
 
-        {content.linkText && (
-          <div className="mt-6">
-            <button
-              className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors focus:outline-none focus:ring-4 focus:ring-primary/30"
-              disabled
-            >
-              {content.linkText}
-            </button>
-          </div>
-        )}
-
-        {content.attachmentName && (
-          <div className="mt-6 flex items-center gap-3 p-3 border border-gray-200 rounded-xl bg-gray-50 max-w-sm">
-            <Paperclip size={24} className="text-text-muted" aria-hidden="true" />
-            <div className="min-w-0">
-              <p className="font-semibold text-text truncate">{content.attachmentName}</p>
-              <p className="text-sm text-text-muted">Archivo adjunto</p>
+          {/* Botón de acción engañoso dentro del correo */}
+          {content.linkText && (
+            <div className="my-3 text-center">
+              <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-xs border border-blue-700">
+                <span>{content.linkText}</span>
+                <ExternalLink size={12} />
+              </span>
+              <p className="text-[10px] text-red-600 font-semibold mt-1">
+                ⚠️ Enlace sospechoso dentro del correo
+              </p>
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      <div className="p-4 sm:p-6 bg-gray-50 border-t border-gray-200">
-        <p className="text-center font-semibold text-text mb-3">¿Qué haces?</p>
-        <div className="space-y-3">
-          {content.choices.map((choice) => (
-            <button
-              key={choice.id}
-              onClick={() => handleChoice(choice.isCorrect)}
-              className="w-full text-left p-4 rounded-2xl border-2 border-gray-200 bg-white text-text font-medium hover:border-primary hover:bg-primary-light transition-colors focus:outline-none focus:ring-4 focus:ring-primary/30"
-            >
-              {choice.label}
-            </button>
-          ))}
+          {/* Archivo adjunto simulado */}
+          {content.attachmentName && (
+            <div className="mt-3 p-2.5 bg-gray-50 rounded-xl border border-gray-200 flex items-center gap-2">
+              <div className="p-1.5 bg-red-100 text-red-600 rounded-lg">
+                <Paperclip size={16} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-gray-900 truncate">
+                  {content.attachmentName}
+                </p>
+                <p className="text-[10px] text-gray-500">Archivo adjunto • 340 KB</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Acciones rápidas de pie de Gmail */}
+      <div className="p-2 bg-white border-t border-gray-200 flex items-center justify-around text-xs text-gray-600 shrink-0">
+        <div className="flex items-center gap-1 font-semibold">
+          <Reply size={14} /> Responder
+        </div>
+        <div className="flex items-center gap-1 font-semibold">
+          <Forward size={14} /> Reenviar
+        </div>
+      </div>
+    </PhoneFrame>
   );
 }

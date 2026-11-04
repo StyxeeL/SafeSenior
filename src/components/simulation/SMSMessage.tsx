@@ -1,93 +1,102 @@
-import { useState } from 'react';
-import { RefreshCw, User } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useSettings } from '@/hooks/useSettings';
-import { playFeedbackSound } from '@/utils/sound';
+import {
+  ArrowLeft,
+  Phone,
+  Search,
+  MoreVertical,
+  Plus,
+  Smile,
+  Send,
+  User,
+  ExternalLink,
+} from 'lucide-react';
+import { PhoneFrame } from './PhoneFrame';
 import type { SmishingContent } from '@/data/practiceScenarios';
 
 interface SMSMessageProps {
   content: SmishingContent;
-  onComplete: (correct: boolean) => void;
-  onRestart: () => void;
 }
 
-type ScreenState = 'messages' | 'feedback';
-
-export function SMSMessage({ content, onComplete, onRestart }: SMSMessageProps) {
-  const [screen, setScreen] = useState<ScreenState>('messages');
-  const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
-  const { settings } = useSettings();
-
-  const handleChoice = (isCorrect: boolean) => {
-    if (settings.sound) playFeedbackSound(isCorrect);
-    setFeedbackCorrect(isCorrect);
-    setScreen('feedback');
-    onComplete(isCorrect);
-  };
-
-  if (screen === 'feedback' && feedbackCorrect !== null) {
-    const feedbackText = feedbackCorrect ? content.feedback.correct : content.feedback.incorrect;
-    return (
-      <Card className={feedbackCorrect ? 'bg-green-50 border-success' : 'bg-red-50 border-danger'}>
-        <div className="text-center py-4">
-          <p className={`text-2xl font-bold mb-3 ${feedbackCorrect ? 'text-success' : 'text-danger'}`}>
-            {feedbackCorrect ? '¡Buena decisión!' : 'Cuidado con este mensaje'}
-          </p>
-          <p className="text-text text-lg mb-6">{feedbackText}</p>
-          <Button onClick={onRestart} leftIcon={<RefreshCw size={24} />}>
-            Repetir ejercicio
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
+export function SMSMessage({ content }: SMSMessageProps) {
   return (
-    <div className="max-w-sm mx-auto bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-200">
-      <div className="bg-warning p-4 flex items-center gap-3 border-b border-gray-200">
-        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-          <User size={24} className="text-warning" aria-hidden="true" />
+    <PhoneFrame theme="light">
+      {/* Encabezado de Google Mensajes / SMS Android */}
+      <div className="bg-white border-b border-gray-200 px-3 py-2 flex items-center justify-between shadow-xs shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <ArrowLeft size={20} className="text-gray-700 shrink-0" />
+          <div className="w-9 h-9 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold text-sm shrink-0 border border-blue-200">
+            {content.senderName ? content.senderName.charAt(0).toUpperCase() : <User size={18} />}
+          </div>
+          <div className="min-w-0 leading-tight">
+            <p className="font-bold text-sm text-gray-900 truncate">{content.senderName}</p>
+            <p className="text-[11px] text-gray-500 truncate">{content.senderNumber}</p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold text-white">{content.senderName}</p>
-          <p className="text-sm text-white/90">{content.senderNumber}</p>
+
+        <div className="flex items-center gap-3 text-gray-600 shrink-0">
+          <Phone size={18} />
+          <Search size={18} />
+          <MoreVertical size={18} />
         </div>
       </div>
 
-      <div className="p-4 min-h-[320px] bg-gray-100">
+      {/* Área de mensajes SMS */}
+      <div className="flex-1 bg-[#F8F9FA] p-3 flex flex-col justify-between overflow-y-auto space-y-3">
+        {/* Separador de Fecha y Canal */}
+        <div className="text-center my-1 space-y-0.5">
+          <span className="text-[11px] font-semibold text-gray-500 bg-gray-200/80 px-2.5 py-0.5 rounded-full">
+            Hoy • 11:15 a. m.
+          </span>
+          <p className="text-[10px] text-gray-400">Mensaje de texto (SMS) • Entel</p>
+        </div>
+
+        {/* Burbujas de SMS */}
         <div className="space-y-3">
           {content.messages.map((message, index) => (
             <div key={index} className="flex justify-start">
-              <div className="max-w-[90%] bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-200">
-                <p className="text-text">
+              <div className="max-w-[88%] bg-[#E8F0FE] text-gray-900 p-3.5 rounded-2xl rounded-tl-sm border border-blue-200/60 shadow-xs">
+                <p className="text-[14px] leading-relaxed">
                   {message.isLink ? (
-                    <span className="text-primary underline break-all">{message.text}</span>
+                    <span className="space-y-2 block">
+                      <span>{message.text}</span>
+                      <span className="mt-2 p-2 bg-white rounded-xl border border-blue-300/80 flex items-center gap-1.5 text-xs text-blue-700 font-bold break-all">
+                        <ExternalLink size={14} className="shrink-0" />
+                        <span>Enlace sospechoso recibido</span>
+                      </span>
+                    </span>
                   ) : (
                     message.text
                   )}
                 </p>
-                <p className="text-xs text-text-muted mt-1 text-right">Ahora</p>
+                <div className="flex items-center justify-between gap-2 mt-2 pt-1 border-t border-blue-200/40 text-[10px] text-gray-500">
+                  <span>Vía SMS</span>
+                  <span>11:15 a. m.</span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="p-4 bg-white border-t border-gray-200">
-        <p className="text-center font-semibold text-text mb-3">¿Qué haces?</p>
-        <div className="space-y-3">
-          {content.choices.map((choice) => (
-            <button
-              key={choice.id}
-              onClick={() => handleChoice(choice.isCorrect)}
-              className="w-full text-left p-4 rounded-2xl border-2 border-gray-200 bg-surface text-text font-medium hover:border-primary hover:bg-primary-light transition-colors focus:outline-none focus:ring-4 focus:ring-primary/30"
-            >
-              {choice.label}
-            </button>
-          ))}
+      {/* Barra Inferior Simulada de Google Mensajes */}
+      <div className="p-2 bg-white border-t border-gray-200 flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center shrink-0"
+        >
+          <Plus size={18} />
+        </button>
+
+        <div className="flex-1 bg-gray-100 rounded-full px-3 py-1.5 flex items-center justify-between text-xs text-gray-400 border border-gray-200">
+          <span>Mensaje de texto</span>
+          <Smile size={16} className="text-gray-400" />
+        </div>
+
+        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+          <Send size={15} />
         </div>
       </div>
-    </div>
+    </PhoneFrame>
   );
 }

@@ -27,16 +27,17 @@ export interface ModuleProgress {
   scenarios: ScenarioProgress[];
 }
 
-export interface UserProgress {
-  modules: ModuleProgress[];
-  quizzes: QuizResult[];
-}
-
 export interface QuizResult {
   quizId: string;
   score: number;
   total: number;
   completedAt: string;
+}
+
+export interface UserProgress {
+  modules: ModuleProgress[];
+  quizzes: QuizResult[];
+  completedTopics?: string[];
 }
 
 export type RouteSection =

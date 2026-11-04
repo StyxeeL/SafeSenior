@@ -1,135 +1,152 @@
-import { useState } from 'react';
-import { RefreshCw, User, CheckCheck } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { useSettings } from '@/hooks/useSettings';
-import { playFeedbackSound } from '@/utils/sound';
+import {
+  ArrowLeft,
+  Phone,
+  Video,
+  MoreVertical,
+  Smile,
+  Paperclip,
+  Camera,
+  Mic,
+  Lock,
+  User,
+  CheckCheck,
+} from 'lucide-react';
+import { PhoneFrame } from './PhoneFrame';
 import type { WhatsAppContent } from '@/data/practiceScenarios';
 
 interface WhatsAppChatProps {
   content: WhatsAppContent;
-  onComplete: (correct: boolean) => void;
-  onRestart: () => void;
 }
 
-type ScreenState = 'chat' | 'feedback';
-
-function ReceiptBubble({
-  amount,
-  service,
-}: {
-  amount: string;
-  service: string;
-}) {
+function YapeReceipt({ amount, service }: { amount: string; service: string }) {
   return (
-    <div className="relative overflow-hidden rounded-xl bg-green-50 border border-green-200 p-4 max-w-[85%]">
-      <div className="absolute top-0 left-0 right-0 bg-green-600 text-white text-xs font-bold px-3 py-1 flex items-center gap-1">
-        <span>SIMULACIÓN EDUCATIVA</span>
+    <div className="rounded-2xl overflow-hidden bg-white shadow-md border border-purple-200 text-left max-w-[90%] my-1">
+      {/* Cabecera estilo Yape */}
+      <div className="bg-[#742284] text-white p-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-[#00D3B8] rounded-full flex items-center justify-center font-black text-xs text-[#742284]">
+            Y
+          </div>
+          <span className="font-bold text-sm tracking-wide">¡Transferencia exitosa!</span>
+        </div>
+        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded font-bold uppercase">
+          {service}
+        </span>
       </div>
-      <div className="pt-5">
-        <p className="text-xs text-text-muted font-semibold uppercase tracking-wide">{service}</p>
-        <p className="text-2xl font-bold text-text">{amount}</p>
-        <p className="text-sm text-text-muted mt-1">Comprobante de pago</p>
-        <p className="text-xs text-danger font-bold mt-2">NO ES REAL</p>
+
+      {/* Monto y detalles */}
+      <div className="p-3 bg-purple-50/40 text-center border-b border-purple-100">
+        <p className="text-xs text-gray-500 font-semibold uppercase">Monto enviado</p>
+        <p className="text-3xl font-extrabold text-gray-900 mt-0.5">{amount}</p>
+        <div className="inline-block bg-red-100 text-red-700 text-[10px] font-black px-2 py-0.5 rounded-full mt-1.5 border border-red-200">
+          ⚠️ COMPROBANTE SIMULADO - NO ES REAL
+        </div>
+      </div>
+
+      <div className="p-2.5 text-xs text-gray-600 space-y-1 bg-white">
+        <div className="flex justify-between">
+          <span className="text-gray-400">Destino:</span>
+          <span className="font-semibold text-gray-800">Tú (Cuenta destino)</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-400">Fecha y hora:</span>
+          <span className="font-semibold text-gray-800">Hoy, 10:41 a. m.</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-400">Nro. de operación:</span>
+          <span className="font-mono text-gray-700">#8942109</span>
+        </div>
       </div>
     </div>
   );
 }
 
-export function WhatsAppChat({ content, onComplete, onRestart }: WhatsAppChatProps) {
-  const [screen, setScreen] = useState<ScreenState>('chat');
-  const [feedbackCorrect, setFeedbackCorrect] = useState<boolean | null>(null);
-  const { settings } = useSettings();
-
-  const handleChoice = (isCorrect: boolean) => {
-    if (settings.sound) playFeedbackSound(isCorrect);
-    setFeedbackCorrect(isCorrect);
-    setScreen('feedback');
-    onComplete(isCorrect);
-  };
-
-  if (screen === 'feedback' && feedbackCorrect !== null) {
-    const feedbackText = feedbackCorrect ? content.feedback.correct : content.feedback.incorrect;
-    return (
-      <Card className={feedbackCorrect ? 'bg-green-50 border-success' : 'bg-red-50 border-danger'}>
-        <div className="text-center py-4">
-          <p className={`text-2xl font-bold mb-3 ${feedbackCorrect ? 'text-success' : 'text-danger'}`}>
-            {feedbackCorrect ? '¡Buena decisión!' : 'Cuidado con este mensaje'}
-          </p>
-          <p className="text-text text-lg mb-6">{feedbackText}</p>
-          <Button onClick={onRestart} leftIcon={<RefreshCw size={24} />}>
-            Repetir ejercicio
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
+export function WhatsAppChat({ content }: WhatsAppChatProps) {
   return (
-    <div className="max-w-sm mx-auto bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-200">
-      <div className="bg-[#075E54] p-4 flex items-center gap-3">
-        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-          <User size={24} className="text-[#075E54]" aria-hidden="true" />
+    <PhoneFrame theme="whatsapp">
+      {/* Encabezado superior de WhatsApp */}
+      <div className="bg-[#075E54] text-white px-3 py-2 flex items-center justify-between shadow-md shrink-0">
+        <div className="flex items-center gap-2 min-w-0">
+          <ArrowLeft size={20} className="shrink-0 text-white/90" />
+          <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center shrink-0 border border-white/30">
+            <User size={20} className="text-white" />
+          </div>
+          <div className="min-w-0 leading-tight">
+            <p className="font-bold text-sm text-white truncate">{content.contactName}</p>
+            <p className="text-[11px] text-[#A2E6D8] truncate font-medium">
+              {content.contactNumber} • en línea
+            </p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-white truncate">{content.contactName}</p>
-          <p className="text-sm text-white/80 truncate">{content.contactNumber}</p>
+
+        <div className="flex items-center gap-3 shrink-0 text-white/90 pl-1">
+          <Video size={19} />
+          <Phone size={18} />
+          <MoreVertical size={19} />
         </div>
       </div>
 
-      <div className="p-4 min-h-[320px] bg-[#E5DDD5]">
-        <div className="space-y-3">
+      {/* Área del Chat con fondo característico de WhatsApp */}
+      <div className="flex-1 bg-[#EFEAE2] p-3 flex flex-col justify-between overflow-y-auto space-y-3">
+        {/* Banner de Cifrado */}
+        <div className="bg-[#FFEECD] text-[#54656F] text-[10px] p-2 rounded-xl text-center shadow-xs border border-amber-200/60 flex items-center justify-center gap-1.5 leading-snug">
+          <Lock size={12} className="shrink-0 text-amber-700" />
+          <span>Los mensajes en este chat están protegidos con cifrado de extremo a extremo.</span>
+        </div>
+
+        {/* Separador de Fecha */}
+        <div className="text-center my-1">
+          <span className="bg-white/90 shadow-xs text-gray-600 text-[11px] font-bold px-3 py-1 rounded-lg uppercase tracking-wider">
+            HOY
+          </span>
+        </div>
+
+        {/* Burbujas de Mensajes */}
+        <div className="space-y-2.5">
           {content.messages.map((message, index) => {
-            if (message.isReceipt) {
-              return (
-                <div key={index} className="flex justify-start">
-                  <ReceiptBubble
-                    amount={message.receiptAmount || ''}
-                    service={message.receiptService || ''}
-                  />
-                </div>
-              );
-            }
+            const isUser = message.sender === 'user';
 
             return (
-              <div
-                key={index}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={[
-                    'max-w-[85%] p-3 rounded-lg text-base shadow-sm relative',
-                    message.sender === 'user'
-                      ? 'bg-[#DCF8C6] text-text rounded-br-none'
-                      : 'bg-white text-text rounded-bl-none',
-                  ].join(' ')}
-                >
-                  <p>{message.text}</p>
-                  <div className="flex items-center justify-end gap-1 mt-1">
-                    <span className="text-[10px] text-text-muted">Ahora</span>
-                    {message.sender === 'user' && <CheckCheck size={14} className="text-blue-500" aria-hidden="true" />}
+              <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+                {message.isReceipt && message.receiptAmount && message.receiptService ? (
+                  <YapeReceipt
+                    amount={message.receiptAmount}
+                    service={message.receiptService}
+                  />
+                ) : (
+                  <div
+                    className={[
+                      'max-w-[88%] p-3 rounded-2xl text-[14px] leading-relaxed shadow-sm relative',
+                      isUser
+                        ? 'bg-[#D9FDD3] text-[#111B21] rounded-tr-none ml-6'
+                        : 'bg-white text-[#111B21] rounded-tl-none mr-6 border border-gray-200/60',
+                    ].join(' ')}
+                  >
+                    <p>{message.text}</p>
+                    <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-gray-500">
+                      <span>10:42 a. m.</span>
+                      {isUser && <CheckCheck size={14} className="text-[#53BDEB]" />}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      <div className="p-4 bg-[#F0F0F0] border-t border-gray-200">
-        <p className="text-center font-semibold text-text mb-3">¿Qué haces?</p>
-        <div className="space-y-3">
-          {content.choices.map((choice) => (
-            <button
-              key={choice.id}
-              onClick={() => handleChoice(choice.isCorrect)}
-              className="w-full text-left p-4 rounded-2xl border-2 border-gray-200 bg-white text-text font-medium hover:border-primary hover:bg-primary-light transition-colors focus:outline-none focus:ring-4 focus:ring-primary/30"
-            >
-              {choice.label}
-            </button>
-          ))}
+      {/* Barra Inferior Simulada de WhatsApp (Teclado/Input) */}
+      <div className="p-2 bg-[#F0F2F5] border-t border-gray-200/80 flex items-center gap-2 shrink-0">
+        <div className="flex-1 bg-white rounded-full px-3 py-1.5 flex items-center gap-2 border border-gray-300/80 shadow-xs">
+          <Smile size={18} className="text-gray-500" />
+          <span className="text-gray-400 text-xs flex-1">Mensaje</span>
+          <Paperclip size={18} className="text-gray-500" />
+          <Camera size={18} className="text-gray-500" />
+        </div>
+        <div className="w-9 h-9 bg-[#00A884] text-white rounded-full flex items-center justify-center shadow-md shrink-0">
+          <Mic size={18} />
         </div>
       </div>
-    </div>
+    </PhoneFrame>
   );
 }

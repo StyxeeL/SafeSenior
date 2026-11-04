@@ -1,155 +1,155 @@
-# SafeSenior
+# SafeSenior 🛡️
 
-Aplicación educativa para adultos mayores del Perú que busca enseñar a reconocer y prevenir estafas digitales mediante contenidos educativos y simulaciones interactivas.
+**SafeSenior** es una aplicación educativa web progresiva (PWA) diseñada para adultos mayores del Perú, orientada a enseñar el reconocimiento y prevención de estafas digitales mediante un **recorrido guiado interactivo estilo Duolingo** y **simulaciones hiperrealistas de plataformas digitales**.
 
-> SafeSenior es una aplicación web progresiva (PWA) que funciona completamente en el navegador. No requiere backend ni conexión a internet después de la primera carga.
+> **Proyecto Académico:** Interacción Humano-Computador (IHC) — UNMSM (6to Ciclo)  
+> **Arquitectura:** PWA 100% *Client-Side* en React + TypeScript + Tailwind CSS. Funciona sin backend y completamente fuera de línea tras su primera carga.
 
 ---
 
-## 🎯 Objetivo
+## 🎯 Objetivo y Enfoque de IHC
 
-Ayudar a los adultos mayores a identificar intentos de estafa a través de:
+Ayudar a los adultos mayores a identificar y responder con seguridad ante fraudes digitales frecuentes en el Perú:
 
-- Llamadas falsas (vishing)
-- SMS falsos (smishing)
-- Mensajes de WhatsApp falsos
-- Correos electrónicos falsos (phishing)
+- **SMS falsos (smishing):** Alertas bancarias fraudulentas, premios no solicitados y enlaces maliciosos.
+- **WhatsApp falsos:** Suplantación de familiares en apuros, comprobantes adulterados de Yape/Plin y falsos códigos de verificación.
+- **Llamadas sospechosas (vishing):** Presión psicológica de supuestos ejecutivos bancarios o emergencias policiales.
+- **Correos electrónicos falsos (phishing):** Falsas notificaciones de entidades públicas (SUNAT) y archivos adjuntos peligrosos.
 
-La aplicación utiliza un lenguaje sencillo, letra grande, botones grandes y retroalimentación amable.
+### Fundamentos Gerontológicos y de IHC aplicados:
+* **Ruta de Aprendizaje Lineal (Reducción de fatiga por decisión - Ley de Hick):** En lugar de navegar entre menús complejos o matrices de dificultad, la persona sigue un camino unificado que la guía paso a paso: **Teoría $\rightarrow$ Práctica $\rightarrow$ Reto del Módulo**.
+* **Separación de Dominios (Estímulo vs. Evaluación):** Se separa físicamente la pantalla simulada del celular (lo que observa el usuario) del cuestionario de evaluación (la decisión que debe tomar), evitando la confusión de ver botones de examen dentro de aplicaciones reales como WhatsApp.
+* **Tolerancia y Aprendizaje del Error:** Si el usuario elige una opción insegura, la lección **no se marca como completada**; en su lugar, se le ofrece retroalimentación comprensiva y se le presenta **un caso alternativo con diferente contexto** del mismo tema para afianzar el conocimiento.
+* **Auto-centrado Ergonómico:** El mapa detecta el progreso y centra automáticamente la pantalla en la siguiente actividad activa (`scrollIntoView` suave), evitando desplazamientos manuales innecesarios.
+
+---
+
+## 🗺️ Estructura del Camino de Aprendizaje
+
+El recorrido está organizado en bloques temáticos por color accesible:
+
+| Módulo | Color Temático | Estructura de Pasos |
+| :--- | :--- | :--- |
+| **Módulo 1: SMS Falsos** | 🔵 Azul Seguro | 📖 Aprende SMS $\rightarrow$ 📱 Práctica (Cuenta bloqueada) $\rightarrow$ 🎯 Práctica (Premio) $\rightarrow$ 🛡️ Reto SMS |
+| **Módulo 2: WhatsApp Falsos** | 🟢 Verde Confianza | 📖 Aprende WhatsApp $\rightarrow$ 📱 Práctica (Familiar) $\rightarrow$ 🎯 Práctica (Comprobante Yape) $\rightarrow$ 🛡️ Reto WhatsApp |
+| **Módulo 3: Llamadas Falsas** | 🟣 Púrpura Alerta | 📖 Aprende Llamadas $\rightarrow$ 📱 Práctica (Código OTP) $\rightarrow$ 🎯 Práctica (Llamada familiar) $\rightarrow$ 🛡️ Reto Llamadas |
+| **Módulo 4: Correos Falsos** | 🟠 Ámbar Vigilante | 📖 Aprende Correos $\rightarrow$ 📱 Práctica (Banco bloqueado) $\rightarrow$ 🎯 Práctica (Falsa SUNAT) $\rightarrow$ 🛡️ Reto Correos |
+| **Gran Reto de Graduación** | 🏆 Oro / Dorado | Evaluación Integradora de los 4 módulos $\rightarrow$ **Diploma Digital de Protector Senior** |
+
+### Estados visuales de los nodos:
+* **Completado:** Color sólido temático, checkmark blanco (`✓`), etiqueta *"Hecho"* y opción de repasar.
+* **Activo (Siguiente paso):** Sombra pulsante animada (`ring-4 animate-pulse`), globo indicador superior (*"👉 ¡Toca aquí para continuar!"*) y botón persistente en la barra de acción rápida inferior (HUD).
+* **Bloqueado:** Tono atenuado con candado (`🔒`) y diálogo explicativo amable al intentar pulsarlo.
+
+---
+
+## 📱 Simuladores Realistas de Plataformas
+
+Las prácticas se presentan dentro de un marco de celular con acabados físicos (cámara *punch-hole*, barra de estado Android con 4G/Wi-Fi/batería y barra de navegación inferior):
+
+1. **WhatsApp Chat (`WhatsAppChat.tsx`):** Cabecera oficial `#075E54`, fondo beige `#EFEAE2`, burbujas con colas de diálogo, avisos de cifrado, comprobantes de Yape hiperrealistas y barra de entrada con micrófono.
+2. **Google Mensajes SMS (`SMSMessage.tsx`):** Cabecera de mensajería Android, burbujas azules `#E8F0FE` con previsualización de enlaces y campo inferior con selector de SIM.
+3. **Llamadas Android (`PhoneCall.tsx`):** Pantalla de llamada entrante con degradado oscuro, avatar con onda expansiva animada, botones táctiles de *Rechazar* / *Contestar* y transcripción en vivo de la voz del estafador al descolgar.
+4. **Gmail Móvil (`EmailViewer.tsx`):** Bandeja de correo con barra de herramientas, remitente con desplegable *"para mí ▼"*, formato formal con botones de acción fraudulentos y archivos adjuntos peligrosos.
 
 ---
 
 ## 🚀 Tecnologías
 
-- **React 18** con **TypeScript**
-- **Vite** como empaquetador
-- **Tailwind CSS** para estilos
-- **React Router** para navegación
-- **Lucide React** para iconografía
-- **LocalStorage** para guardar progreso y preferencias
-- **Service Worker** y **Web App Manifest** para funcionar como PWA offline
+* **React 18** con **TypeScript**
+* **Vite** como empaquetador ultrarrápido
+* **Tailwind CSS** para diseño responsivo y accesible
+* **React Router v6** para navegación fluida
+* **Lucide React** para iconografía accesible
+* **LocalStorage** para persistencia de progreso y configuración
+* **Vite PWA Plugin & Service Worker** para soporte sin conexión (*offline*)
 
 ---
 
-## 📦 Instalación
+## 📦 Instalación y Uso
 
-1. Clona o descarga el proyecto.
-2. Abre una terminal en la carpeta del proyecto.
-3. Instala las dependencias:
+1. Clona o descarga el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/SafeSenior.git
+   cd SafeSenior
+   ```
 
+2. Instala las dependencias:
    ```bash
    npm install
    ```
 
-4. Inicia el servidor de desarrollo:
-
+3. Inicia el servidor de desarrollo local:
    ```bash
    npm run dev
    ```
 
-5. Abre tu navegador en `http://localhost:5173`.
+4. Abre tu navegador en `http://localhost:5173`.
 
 ---
 
 ## 🛠️ Scripts disponibles
 
 | Comando | Descripción |
-|---------|-------------|
-| `npm run dev` | Inicia el servidor de desarrollo. |
-| `npm run build` | Genera la versión de producción en `dist/`. |
-| `npm run preview` | Previsualiza la versión de producción. |
-| `npm run lint` | Verifica tipado con TypeScript. |
+| :--- | :--- |
+| `npm run dev` | Inicia el servidor de desarrollo local con Vite. |
+| `npm run build` | Compila el bundle optimizado para producción en `dist/` (incluye PWA service worker). |
+| `npm run preview` | Previsualiza localmente la versión de producción compilada. |
+| `npm run lint` | Verifica tipado y consistencia estática con TypeScript (`tsc --noEmit`). |
 
 ---
 
-## 📱 Instalación en el celular
-
-SafeSenior es una PWA. Si entras desde un navegador compatible (Chrome o Edge en Android, por ejemplo), aparecerá un botón **"Instalar SafeSenior"** en la pantalla de inicio o en configuración. Al tocarlo, la app se instala como cualquier otra aplicación.
-
-Una vez instalada, puedes abrirla desde el icono en tu pantalla principal y usarla sin conexión a internet.
-
----
-
-## 🗂️ Estructura del proyecto
+## 🗂️ Estructura del Proyecto
 
 ```
 SafeSenior/
-├── public/                # Archivos públicos e iconos
-├── scripts/               # Scripts de utilidad (generación de iconos)
+├── public/                     # Assets públicos, iconos y Web App Manifest
 ├── src/
-│   ├── components/        # Componentes reutilizables
-│   │   ├── layout/        # Layout, navegación superior e inferior
-│   │   ├── pwa/           # Botón de instalación PWA
-│   │   ├── quiz/          # Visualizaciones de evaluación
-│   │   ├── simulation/    # Simulaciones de llamadas, SMS, WhatsApp y correos
-│   │   └── ui/            # Botones, tarjetas, modales, etc.
-│   ├── data/              # Contenidos educativos, escenarios y preguntas
-│   ├── hooks/             # Hooks personalizados
-│   ├── pages/             # Pantallas principales
-│   ├── routes/            # Configuración de rutas
-│   ├── services/          # Persistencia en LocalStorage
-│   ├── types/             # Tipos de TypeScript
-│   └── utils/             # Funciones auxiliares
+│   ├── components/
+│   │   ├── layout/             # TopBar, BottomNav unificado y Layout principal
+│   │   ├── learning/           # LearningPathMap (Mapa Duolingo, nodos y modales)
+│   │   ├── pwa/                # Botón de instalación de PWA
+│   │   ├── quiz/               # Visualizaciones de preguntas
+│   │   ├── simulation/         # PhoneFrame, WhatsAppChat, SMSMessage, PhoneCall, EmailViewer
+│   │   └── ui/                 # Botones grandes, tarjetas, modales y barras de progreso
+│   ├── data/
+│   │   ├── learningPath.ts     # Definición de módulos, pasos, iconos y paletas
+│   │   ├── learnContent.ts     # Teoría y consejos clave por tema
+│   │   ├── practiceScenarios.ts# Casos prácticos y alternativos de estafas
+│   │   └── quizQuestions.ts    # Cuestionarios por módulo y evaluación final
+│   ├── hooks/                  # useProgress, useSettings, useSpeech, useInstallPrompt
+│   ├── pages/                  # HomePage (Mi Camino), ScenarioPage, QuizPage, ProgressPage, SettingsPage
+│   ├── routes/                 # AppRouter (rutas y redirecciones guiadas)
+│   ├── services/               # Gestión de progreso en LocalStorage
+│   └── types/                  # Definiciones de TypeScript
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
-├── tsconfig.json
 └── vite.config.ts
 ```
 
 ---
 
-## ♿ Accesibilidad
+## ♿ Accesibilidad (WCAG 2.2 AA)
 
-SafeSenior busca cumplir con **WCAG 2.2 AA** e incluye:
-
-- Tamaño de letra configurable (normal, grande, muy grande)
-- Modo de alto contraste
-- Sonido de retroalimentación opcional
-- Instrucciones por audio usando la síntesis de voz del navegador
-- Navegación por teclado
-- Enlace "Saltar al contenido principal"
-- Estados de foco visibles
-- Botones y áreas táctiles grandes
+* **Botones amplios (Ley de Fitts):** Áreas táctiles mínimas de 64×64 px y espaciado preventivo de errores.
+* **Tamaño de texto graduable:** Normal, grande y muy grande desde Configuración.
+* **Modo de alto contraste:** Contraste mejorado para usuarios con baja visión o cataratas.
+* **Lectura en voz alta:** Síntesis de voz nativa del navegador para los textos teóricos.
+* **Audio de retroalimentación:** Sonidos sutiles que confirman acciones correctas o señalan alertas sin sobresaltos.
+* **Navegación accesible:** Navegación por teclado, atajo *"Saltar al contenido principal"* y etiquetas ARIA en todos los nodos interactivos.
 
 ---
 
-## 🔒 Seguridad
+## 🔒 Compromiso de Seguridad
 
-Todas las simulaciones son completamente ficticias y educativas:
-
-- No se realizan llamadas, mensajes ni correos reales.
-- No se solicitan contraseñas, códigos OTP ni datos bancarios reales.
-- No se ejecutan transferencias ni pagos.
-- Los comprobantes ficticios llevan una marca visible de "SIMULACIÓN EDUCATIVA".
-
----
-
-## 📚 Contenido educativo
-
-La aplicación incluye seis secciones principales:
-
-1. **Inicio:** bienvenida, accesos rápidos y resumen de progreso.
-2. **Aprende:** contenidos sobre estafas digitales y señales de alerta.
-3. **Practica:** simulaciones interactivas de los cuatro tipos de estafa.
-4. **Evalúate:** cuestionario con situaciones simuladas.
-5. **Mi progreso:** estadísticas de aprendizaje.
-6. **Configuración y ayuda:** preferencias, accesibilidad y preguntas frecuentes.
-
----
-
-## 🤝 Contribuciones
-
-Este proyecto es educativo. Si deseas proponer mejoras, puedes hacerlo respetando el alcance actual: frontend exclusivo, datos ficticios y almacenamiento local.
+Todas las simulaciones en SafeSenior son **100% ficticias y educativas**:
+* No se realizan llamadas, mensajes SMS ni correos reales.
+* Nunca se solicitan contraseñas, números de tarjeta ni claves de seguridad reales.
+* Los comprobantes de pago cuentan con marcas claras de **"SIMULACIÓN EDUCATIVA"**.
 
 ---
 
 ## 📄 Licencia
 
-Proyecto educativo. Uso libre para fines de aprendizaje y prevención.
-
----
-
-## 🙋 Soporte
-
-Si tienes dudas sobre cómo usar la aplicación, revisa la sección **Configuración y ayuda** dentro de la app.
+Proyecto educativo desarrollado para el curso de **Interacción Humano-Computador (IHC)** — Universidad Nacional Mayor de San Marcos (UNMSM). Uso libre con fines de aprendizaje y prevención comunitaria.
