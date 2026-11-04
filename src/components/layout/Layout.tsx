@@ -16,7 +16,7 @@ export function Layout({ children }: LayoutProps) {
         Saltar al contenido principal
       </a>
       <TopBar />
-      <main id="main-content" className="max-w-3xl mx-auto pt-20 pb-24 px-4 sm:px-6" tabIndex={-1}>
+      <main id="main-content" className="max-w-3xl mx-auto pt-20 pb-32 px-4 sm:px-6" tabIndex={-1}>
         {children}
       </main>
       <BottomNav />

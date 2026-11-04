@@ -18,26 +18,26 @@ export function BottomNav() {
       aria-label="Navegación principal"
     >
       <div className="max-w-3xl mx-auto">
-        <ul className="flex justify-around items-center h-20">
+        <ul className="flex items-center justify-center h-24 overflow-x-auto scrollbar-hide snap-x">
           {navItems.map((item) => {
             const isActive =
               item.to === '/'
                 ? location.pathname === '/'
                 : location.pathname.startsWith(item.to);
             return (
-              <li key={item.to} className="flex-1">
+              <li key={item.to} className="flex-none snap-start">
                 <Link
                   to={item.to}
                   className={[
-                    'flex flex-col items-center justify-center gap-1 h-full w-full',
-                    'text-sm sm:text-base font-medium transition-colors duration-200',
+                    'flex flex-col items-center justify-center gap-2 min-w-[110px] h-full px-4',
+                    'text-base sm:text-lg font-medium transition-colors duration-200',
                     'focus:outline-none focus:bg-primary-light',
                     isActive ? 'text-primary' : 'text-text-muted hover:text-text',
                   ].join(' ')}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   <item.icon
-                    size={28}
+                    size={32}
                     strokeWidth={isActive ? 2.5 : 2}
                     aria-hidden="true"
                   />
