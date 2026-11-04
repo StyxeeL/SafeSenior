@@ -5,10 +5,15 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+declare global {
+  interface Window {
+    deferredPrompt?: BeforeInstallPromptEvent | null;
+  }
+}
+
 export function useInstallPrompt() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -19,16 +24,22 @@ export function useInstallPrompt() {
 
     setIsInstalled(isStandalone);
 
+    // Use the prompt captured by the inline script in index.html if available.
+    if (window.deferredPrompt) {
+      setInstallEvent(window.deferredPrompt);
+    }
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setInstallEvent(e as BeforeInstallPromptEvent);
-      setIsSupported(true);
+      const promptEvent = e as BeforeInstallPromptEvent;
+      window.deferredPrompt = promptEvent;
+      setInstallEvent(promptEvent);
     };
 
     const handleAppInstalled = () => {
+      window.deferredPrompt = null;
       setInstallEvent(null);
       setIsInstalled(true);
-      setIsSupported(false);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -41,19 +52,23 @@ export function useInstallPrompt() {
   }, []);
 
   const promptInstall = useCallback(async () => {
-    if (!installEvent) return;
+    const promptEvent = installEvent || window.deferredPrompt;
+    if (!promptEvent) return;
 
-    await installEvent.prompt();
-    const choice = await installEvent.userChoice;
+    await promptEvent.prompt();
+    const choice = await promptEvent.userChoice;
 
     if (choice.outcome === 'accepted') {
+      window.deferredPrompt = null;
       setInstallEvent(null);
       setIsInstalled(true);
     }
   }, [installEvent]);
 
+  const isSupported = Boolean(installEvent) || Boolean(window.deferredPrompt);
+
   return {
-    isSupported: isSupported || Boolean(installEvent),
+    isSupported,
     isInstalled,
     promptInstall,
   };
