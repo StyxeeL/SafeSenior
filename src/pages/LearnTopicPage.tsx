@@ -1,5 +1,5 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, Phone, MessageSquare, MessageCircle, Mail, CheckCircle, Volume2 } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Phone, MessageSquare, MessageCircle, Mail, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 import { getTopicById } from '@/data/learnContent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -19,7 +19,7 @@ export function LearnTopicPage() {
   const { topicId } = useParams<{ topicId: string }>();
   const topic = topicId ? getTopicById(topicId) : undefined;
   const { settings } = useSettings();
-  const { supported: speechSupported, speak } = useSpeech();
+  const { supported: speechSupported, speaking, toggle } = useSpeech();
 
   if (!topic) {
     return <Navigate to="/aprende" replace />;
@@ -53,15 +53,15 @@ export function LearnTopicPage() {
           <p className="page-subtitle">{topic.description}</p>
         </div>
         {settings.audioInstructions && speechSupported && (
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label="Escuchar contenido en voz alta"
-            onClick={() => speak(fullText)}
-            leftIcon={<Volume2 size={20} />}
+          <button
+            type="button"
+            onClick={() => toggle(fullText)}
+            className="p-3 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-4 focus:ring-primary/30"
+            aria-label={speaking ? 'Detener audio' : 'Escuchar contenido en voz alta'}
+            aria-pressed={speaking}
           >
-            Escuchar
-          </Button>
+            {speaking ? <VolumeX size={24} aria-hidden="true" /> : <Volume2 size={24} aria-hidden="true" />}
+          </button>
         )}
       </section>
 
