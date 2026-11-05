@@ -1,371 +1,385 @@
-import { useParams, Navigate, Link } from 'react-router-dom';
-import { useState, useMemo, useCallback } from 'react';
+import { useParams, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
-  ArrowLeft,
   AlertTriangle,
-  Info,
   CheckCircle2,
   MapPin,
   RefreshCw,
-  HelpCircle,
-  Smartphone,
-  XCircle,
+  ArrowRight,
+  ArrowLeft,
+  ShieldCheck,
+  LogOut,
+  Info,
 } from 'lucide-react';
-import { getModuleById, getScenarioById, type ModuleId } from '@/data/practiceScenarios';
+import { getModuleById, getScenarioById, type ModuleId, type Scenario } from '@/data/practiceScenarios';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { PhoneCall } from '@/components/simulation/PhoneCall';
 import { SMSMessage } from '@/components/simulation/SMSMessage';
 import { WhatsAppChat } from '@/components/simulation/WhatsAppChat';
 import { EmailViewer } from '@/components/simulation/EmailViewer';
+import { PracticeTopBar } from '@/components/practice/PracticeTopBar';
+import { StepIndicator, PRACTICE_STEPS } from '@/components/practice/StepIndicator';
+import { PinnedStimulus } from '@/components/practice/PinnedStimulus';
+import { OptionCard } from '@/components/practice/OptionCard';
 import { useProgress } from '@/hooks/useProgress';
 import { useSettings } from '@/hooks/useSettings';
+import { useSpeech } from '@/hooks/useSpeech';
 import { playFeedbackSound } from '@/utils/sound';
 
+const LETTERS = ['A', 'B', 'C', 'D'];
+
+const STIMULUS_NAME: Record<string, string> = {
+  vishing: 'esta llamada',
+  smishing: 'este mensaje de texto',
+  whatsapp: 'esta conversación de WhatsApp',
+  email: 'este correo',
+};
+
+/**
+ * Práctica segura en tres pasos fijos: Mirar → Pista → Decidir.
+ * Aplica las decisiones del prototipo v2 (Sesión 7):
+ *  D1 «Salir seguro» fijo · D3 «Escuchar» · D4 decidir después de revisar y
+ *  poder cambiar la respuesta · D5 el botón bloqueado explica qué falta ·
+ *  D6 pistas con número · D7 mensaje fijado · D9 pasos en lenguaje cotidiano.
+ */
 export function ScenarioPage() {
   const { moduleId, scenarioId } = useParams<{ moduleId: ModuleId; scenarioId: string }>();
+  const navigate = useNavigate();
   const module = moduleId ? getModuleById(moduleId) : undefined;
   const initialScenario = scenarioId ? getScenarioById(scenarioId) : undefined;
   const { recordScenarioAttempt } = useProgress();
   const { settings } = useSettings();
+  const { supported: canSpeak, speaking, toggle: toggleSpeech, cancel: cancelSpeech } = useSpeech();
 
   const originalScenarioId = scenarioId || '';
   const [currentScenarioId, setCurrentScenarioId] = useState<string>(originalScenarioId);
   const [runKey, setRunKey] = useState(0);
 
-  // Estados de la pregunta y evaluación
+  const [step, setStep] = useState(0);
+  const [reviewed, setReviewed] = useState<Set<number>>(new Set());
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
-  const [showFeedback, setShowFeedback] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [hasSwitchedScenario, setHasSwitchedScenario] = useState(false);
+  const [hungUpNote, setHungUpNote] = useState(false);
+  const [exitOpen, setExitOpen] = useState(false);
 
-  const currentScenario = useMemo(() => {
-    return getScenarioById(currentScenarioId) || initialScenario;
-  }, [currentScenarioId, initialScenario]);
+  const currentScenario: Scenario | undefined = useMemo(
+    () => getScenarioById(currentScenarioId) || initialScenario,
+    [currentScenarioId, initialScenario]
+  );
 
-  if (!module || !initialScenario || initialScenario.moduleId !== module.id || !currentScenario) {
+  // Cada cambio de paso empieza arriba y detiene la lectura en curso.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    cancelSpeech();
+  }, [step, runKey, cancelSpeech]);
+
+  const resetRun = useCallback(() => {
+    setStep(0);
+    setReviewed(new Set());
+    setSelectedChoiceId(null);
+    setConfirmed(false);
+    setIsSuccess(false);
+    setHungUpNote(false);
+    setRunKey((prev) => prev + 1);
+  }, []);
+
+  if (!module || !initialScenario || initialScenario.moduleId !== module.id || !currentScenario?.content) {
     return <Navigate to="/" replace />;
   }
 
-  const selectedChoice = currentScenario.content?.choices.find((c) => c.id === selectedChoiceId);
+  const content = currentScenario.content;
+  const pistas = currentScenario.pistas;
+  const missing = pistas.length - reviewed.size;
+  const selectedChoice = content.choices.find((c) => c.id === selectedChoiceId);
+  const stimulusName = STIMULUS_NAME[content.type];
 
-  const handleSelectChoice = useCallback(
-    (choiceId: string) => {
-      if (showFeedback) return;
-
-      const choice = currentScenario.content?.choices.find((c) => c.id === choiceId);
-      if (!choice) return;
-
-      setSelectedChoiceId(choiceId);
-      setShowFeedback(true);
-
-      if (settings.sound) {
-        playFeedbackSound(choice.isCorrect);
-      }
-
-      if (choice.isCorrect) {
-        setIsSuccess(true);
-        // Marcamos como completado el escenario actual y el paso original del camino
-        recordScenarioAttempt(module.id, currentScenario.id, true);
-        recordScenarioAttempt(module.id, originalScenarioId, true);
-      } else {
-        setIsSuccess(false);
-        // Si falló, registramos intento fallido SIN marcar como completado
-        recordScenarioAttempt(module.id, currentScenario.id, false);
-      }
-    },
-    [showFeedback, currentScenario, settings.sound, module.id, originalScenarioId, recordScenarioAttempt]
-  );
-
-  const handleRestartCurrent = () => {
-    setSelectedChoiceId(null);
-    setShowFeedback(false);
-    setIsSuccess(false);
-    setRunKey((prev) => prev + 1);
+  const reviewPista = (index: number) => {
+    setReviewed((prev) => new Set(prev).add(index));
   };
 
-  const handleTryAlternative = () => {
-    // Buscar otros escenarios interactivos del mismo módulo con contexto diferente
-    const candidateScenarios = module.scenarios.filter(
-      (s) => s.id !== currentScenarioId && Boolean(s.content)
-    );
-
-    if (candidateScenarios.length > 0) {
-      // Priorizar uno que no sea el original
-      const nonOriginalCandidates = candidateScenarios.filter((s) => s.id !== originalScenarioId);
-      const chosenScenario =
-        nonOriginalCandidates.length > 0 ? nonOriginalCandidates[0] : candidateScenarios[0];
-
-      setCurrentScenarioId(chosenScenario.id);
-      setHasSwitchedScenario(true);
-      setSelectedChoiceId(null);
-      setShowFeedback(false);
-      setIsSuccess(false);
-      setRunKey((prev) => prev + 1);
+  const handleConfirm = () => {
+    if (!selectedChoice || confirmed) return;
+    setConfirmed(true);
+    setIsSuccess(selectedChoice.isCorrect);
+    if (settings.sound) playFeedbackSound(selectedChoice.isCorrect);
+    // Retroalimentación háptica breve (recomendación de la Sesión 10)
+    if ('vibrate' in navigator) {
+      navigator.vibrate(selectedChoice.isCorrect ? 60 : [80, 60, 80]);
+    }
+    if (selectedChoice.isCorrect) {
+      recordScenarioAttempt(module.id, currentScenario.id, true);
+      recordScenarioAttempt(module.id, originalScenarioId, true);
     } else {
-      handleRestartCurrent();
+      recordScenarioAttempt(module.id, currentScenario.id, false);
     }
   };
 
-  const hasInteractiveContent = Boolean(currentScenario.content);
+  const handleTryAlternative = () => {
+    const candidates = module.scenarios.filter((s) => s.id !== currentScenarioId && Boolean(s.content));
+    const nonOriginal = candidates.filter((s) => s.id !== originalScenarioId);
+    const chosen = nonOriginal[0] ?? candidates[0];
+    if (chosen) {
+      setCurrentScenarioId(chosen.id);
+      setHasSwitchedScenario(true);
+    }
+    resetRun();
+  };
+
+  const handleBack = () => {
+    if (step > 0 && !confirmed) setStep(step - 1);
+    else navigate('/');
+  };
+
+  const speechText = (() => {
+    if (step === 0) {
+      return `Paso 1, Mirar. Mira con calma ${stimulusName}. Todavía no tienes que decidir nada.`;
+    }
+    if (step === 1) {
+      const list = pistas.map((p, i) => `Pista ${i + 1}: ${p.label}. ${p.detail}`).join(' ');
+      return `Paso 2, Pista. Toca cada pista marcada en amarillo. ${list}`;
+    }
+    const opts = content.choices.map((c, i) => `Opción ${LETTERS[i]}: ${c.label}.`).join(' ');
+    return `Paso 3, Decidir. ¿Qué harías ahora? ${opts}`;
+  })();
 
   return (
-    <div className="space-y-6">
-      <Link to="/" className="inline-flex items-center gap-2 text-primary font-semibold text-lg">
-        <ArrowLeft size={24} aria-hidden="true" />
-        Volver a mi camino
-      </Link>
+    <div className="pb-6">
+      <PracticeTopBar
+        step={step}
+        canSpeak={canSpeak}
+        speaking={speaking}
+        onBack={handleBack}
+        onListen={() => toggleSpeech(speechText)}
+        onSafeExit={() => setExitOpen(true)}
+      />
 
-      {/* Encabezado del Ejercicio */}
-      <section>
-        <div className="flex items-center gap-2 mb-2">
-          <module.icon size={28} className={module.color} aria-hidden="true" />
-          <span className="text-text-muted font-medium">{module.subtitle}</span>
-        </div>
-        <h2 className="page-title mb-2">{currentScenario.title}</h2>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="warning">{currentScenario.difficulty}</Badge>
-          {hasSwitchedScenario && (
-            <span className="inline-flex items-center gap-1 text-sm bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold">
-              <RefreshCw size={16} /> Caso alternativo de refuerzo
-            </span>
-          )}
-        </div>
-      </section>
+      <StepIndicator current={step} />
+      <p className="text-sm font-bold text-text-muted mb-1">
+        {module.title} · {currentScenario.title}
+      </p>
 
-      {/* Notificación si cambió a un caso alternativo */}
-      {hasSwitchedScenario && !isSuccess && (
-        <Card className="bg-amber-50 border-2 border-amber-300 p-4 shadow-sm animate-fade-in">
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-amber-200 text-amber-900 rounded-xl shrink-0 mt-0.5">
-              <RefreshCw size={22} />
-            </div>
-            <div>
-              <p className="font-extrabold text-amber-950 text-base">
-                Nuevo contexto para practicar
-              </p>
-              <p className="text-amber-900 text-base leading-relaxed mt-0.5">
-                Observa con atención esta nueva situación simulada en el celular. ¡Tómate tu tiempo y elige la opción segura!
-              </p>
-            </div>
-          </div>
-        </Card>
+      {hasSwitchedScenario && step === 0 && (
+        <div className="mb-4 rounded-2xl border-2 border-warning bg-warning-light p-3 flex items-start gap-3">
+          <RefreshCw size={22} className="text-warning shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-sm text-text">
+            <strong>Otro caso para practicar.</strong> Es una situación diferente del mismo tema. Tómate tu tiempo.
+          </p>
+        </div>
       )}
 
-      {/* SECCIÓN 1: EL CELULAR REALISTA (Plataforma Simulada) */}
-      <section aria-label="Simulación de pantalla de celular">
-        <div className="bg-slate-100/80 p-3 sm:p-5 rounded-3xl border-2 border-slate-200 shadow-inner space-y-3">
-          <div className="flex items-center justify-between px-2">
-            <span className="text-xs uppercase font-extrabold tracking-wider text-text-muted flex items-center gap-1.5">
-              <Smartphone size={16} className="text-primary" /> Pantalla simulada de tu celular
-            </span>
-            <span className="text-xs bg-white text-gray-600 px-2.5 py-0.5 rounded-full font-bold border border-gray-200 shadow-xs">
-              Simulación Ficticia
-            </span>
+      {/* ───────── PASO 1 · MIRAR ───────── */}
+      {step === 0 && (
+        <section className="space-y-4" aria-label="Paso 1: Mirar">
+          <div data-escuchar>
+            <h2 className="page-title">Mira con calma {stimulusName}</h2>
+            <p className="text-text-muted mt-1">
+              {content.type === 'vishing'
+                ? 'Toca «Contestar» para oír lo que dice. Todavía no tienes que decidir nada.'
+                : 'Lee todo el mensaje. Todavía no tienes que decidir nada.'}
+            </p>
           </div>
 
-          {/* Teléfono Realista */}
-          {hasInteractiveContent && (
-            <div key={runKey} className="py-1">
-              {currentScenario.content?.type === 'vishing' && (
-                <PhoneCall
-                  content={currentScenario.content}
-                  onHangUpDirectly={() => {
-                    // Si cuelga directamente desde el teléfono, podemos seleccionar la opción de colgar si existe
-                    const hangUpChoice = currentScenario.content?.choices.find(
-                      (c) => c.isCorrect && c.label.toLowerCase().includes('cuelg')
-                    );
-                    if (hangUpChoice && !showFeedback) {
-                      handleSelectChoice(hangUpChoice.id);
-                    }
-                  }}
-                />
-              )}
-              {currentScenario.content?.type === 'smishing' && (
-                <SMSMessage content={currentScenario.content} />
-              )}
-              {currentScenario.content?.type === 'whatsapp' && (
-                <WhatsAppChat content={currentScenario.content} />
-              )}
-              {currentScenario.content?.type === 'email' && (
-                <EmailViewer content={currentScenario.content} />
-              )}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* SECCIÓN 2: EL EJERCICIO / PREGUNTAS (Completamente Separado del Celular) */}
-      {hasInteractiveContent && (
-        <section aria-label="Pregunta del ejercicio">
-          <Card className="border-2 border-primary/30 p-5 sm:p-6 shadow-md space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 bg-primary-light text-primary rounded-2xl shrink-0 mt-0.5">
-                <HelpCircle size={30} />
-              </div>
-              <div>
-                <span className="text-xs uppercase font-extrabold tracking-wider text-primary">
-                  Ejercicio de práctica
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-text mt-0.5">
-                  ¿Qué decisión debes tomar ante esta situación?
-                </h3>
-                <p className="text-text-muted text-base mt-1">
-                  Revisa los detalles en la pantalla del celular arriba y selecciona la respuesta más segura:
-                </p>
-              </div>
-            </div>
-
-            {/* Opciones de Respuesta */}
-            <div className="space-y-3 pt-2">
-              {currentScenario.content?.choices.map((choice) => {
-                const isSelected = selectedChoiceId === choice.id;
-                const showResult = showFeedback && isSelected;
-                const correctSelected = showFeedback && choice.isCorrect;
-
-                return (
-                  <button
-                    key={choice.id}
-                    onClick={() => handleSelectChoice(choice.id)}
-                    disabled={showFeedback}
-                    className={[
-                      'w-full text-left p-4 sm:p-5 rounded-2xl border-2 font-medium text-lg transition-all',
-                      'focus:outline-none focus:ring-4 focus:ring-primary/30 active:scale-[0.99]',
-                      showResult && choice.isCorrect
-                        ? 'bg-green-100 border-success text-success font-bold shadow-xs'
-                        : showResult && !choice.isCorrect
-                        ? 'bg-red-100 border-danger text-danger font-bold shadow-xs'
-                        : correctSelected
-                        ? 'bg-green-100 border-success text-success font-bold shadow-xs'
-                        : 'bg-surface border-gray-200 hover:border-primary hover:bg-primary-light text-text',
-                    ].join(' ')}
-                    aria-pressed={isSelected}
-                  >
-                    <div className="flex items-center gap-3">
-                      {showResult && choice.isCorrect && (
-                        <CheckCircle2 size={26} className="text-success shrink-0" aria-hidden="true" />
-                      )}
-                      {showResult && !choice.isCorrect && (
-                        <XCircle size={26} className="text-danger shrink-0" aria-hidden="true" />
-                      )}
-                      <span>{choice.label}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* SECCIÓN 3: RETROALIMENTACIÓN EDUCATIVA */}
-            {showFeedback && selectedChoice && (
-              <div className="pt-2 animate-fade-in">
-                {isSuccess ? (
-                  // Caso: ACIERTO
-                  <Card className="bg-green-50 border-2 border-green-500 p-5 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-green-200 text-green-900 rounded-2xl shrink-0 mt-0.5">
-                        <CheckCircle2 size={32} className="text-green-700" />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-black text-green-950">¡Excelente decisión!</h4>
-                        <p className="text-base sm:text-lg text-green-900 font-medium mt-1 leading-relaxed">
-                          {currentScenario.content?.feedback.correct}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                      <Link to="/" className="flex-1">
-                        <Button fullWidth size="lg" leftIcon={<MapPin size={24} />}>
-                          Continuar en mi camino
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        onClick={handleRestartCurrent}
-                        leftIcon={<RefreshCw size={20} />}
-                      >
-                        Repasar este caso
-                      </Button>
-                    </div>
-                  </Card>
-                ) : (
-                  // Caso: ERROR / TRAMPA
-                  <Card className="bg-red-50 border-2 border-red-500 p-5 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-red-200 text-red-900 rounded-2xl shrink-0 mt-0.5">
-                        <AlertTriangle size={32} className="text-red-700" />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-black text-red-950">
-                          Cuidado: Esta opción era una trampa
-                        </h4>
-                        <p className="text-base sm:text-lg text-red-900 font-medium mt-1 leading-relaxed">
-                          {currentScenario.content?.feedback.incorrect}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-white/90 rounded-2xl border border-red-200 text-text text-base">
-                      <p>
-                        No te preocupes, aprendemos de la experiencia. Para comprobar que el tema quedó claro,
-                        vamos a practicar con <strong>otro caso de diferente contexto</strong>.
-                      </p>
-                    </div>
-
-                    <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                      <Button
-                        size="lg"
-                        onClick={handleTryAlternative}
-                        leftIcon={<RefreshCw size={24} />}
-                        className="flex-1"
-                      >
-                        Intentar con otro caso diferente
-                      </Button>
-                      <Button variant="outline" onClick={handleRestartCurrent}>
-                        Revisar este caso de nuevo
-                      </Button>
-                    </div>
-                  </Card>
-                )}
-              </div>
+          <div key={runKey}>
+            {content.type === 'vishing' && (
+              <PhoneCall
+                content={content}
+                onHangUpDirectly={() => {
+                  setHungUpNote(true);
+                  setStep(1);
+                }}
+              />
             )}
-          </Card>
+            {content.type === 'smishing' && <SMSMessage content={content} />}
+            {content.type === 'whatsapp' && <WhatsAppChat content={content} />}
+            {content.type === 'email' && <EmailViewer content={content} />}
+          </div>
+
+          <p className="flex items-start gap-2 text-sm text-text-muted">
+            <ShieldCheck size={20} className="text-success shrink-0 mt-0.5" aria-hidden="true" />
+            Todo es una práctica: no se usa tu dinero ni tus datos.
+          </p>
+
+          <Button fullWidth onClick={() => setStep(1)} rightIcon={<ArrowRight size={22} />}>
+            Siguiente: buscar pistas
+          </Button>
         </section>
       )}
 
-      {/* Señales de Alerta de Apoyo */}
-      <Card className="bg-warning/10 border-warning/30">
-        <h3 className="text-lg font-bold text-text mb-2 flex items-center gap-2">
-          <AlertTriangle size={22} className="text-warning" aria-hidden="true" />
-          Señales de alerta a recordar en este tipo de situaciones
-        </h3>
-        <ul className="list-disc list-inside space-y-1.5 text-text text-base">
-          {currentScenario.alertSignals.map((signal, index) => (
-            <li key={index}>{signal}</li>
-          ))}
-        </ul>
-      </Card>
-
-      <div className="pt-2">
-        <Link to="/">
-          <Button variant="outline" fullWidth size="lg" leftIcon={<MapPin size={24} />}>
-            Volver a Mi Camino
-          </Button>
-        </Link>
-      </div>
-
-      <Card className="bg-primary-light border-primary/20">
-        <div className="flex items-start gap-3">
-          <Info size={28} className="text-primary shrink-0 mt-1" aria-hidden="true" />
-          <div>
-            <h3 className="text-lg font-bold text-primary mb-1">Recuerda</h3>
-            <p className="text-text text-base leading-relaxed">
-              Todos los mensajes, números y llamadas son ficticios y educativos. Ningún botón en SafeSenior realiza transferencias ni envía datos reales.
+      {/* ───────── PASO 2 · PISTA ───────── */}
+      {step === 1 && (
+        <section className="space-y-4" aria-label="Paso 2: Pista">
+          {hungUpNote && (
+            <div className="rounded-2xl border-2 border-success bg-success-light p-3 text-sm">
+              <strong className="text-success">Colgar fue una buena reacción.</strong> Ahora revisa qué decía la
+              llamada para reconocerla la próxima vez.
+            </div>
+          )}
+          <div data-escuchar>
+            <h2 className="page-title">Toca las {pistas.length} pistas</h2>
+            <p className="text-text-muted mt-1">
+              Cada <span className="font-bold text-warning">⚠ pista</span> te explica una señal de engaño. Tócalas
+              todas para poder decidir.
             </p>
           </div>
+
+          <div className="flex items-center gap-3" aria-live="polite">
+            <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-success rounded-full transition-all"
+                style={{ width: `${(reviewed.size / pistas.length) * 100}%` }}
+              />
+            </div>
+            <span className="font-bold text-sm whitespace-nowrap">
+              {reviewed.size} de {pistas.length} revisadas
+            </span>
+          </div>
+
+          <PinnedStimulus content={content} pistas={pistas} reviewed={reviewed} onPistaClick={reviewPista} />
+
+          <div className="flex flex-col gap-3 pt-1">
+            <Button
+              fullWidth
+              disabled={missing > 0}
+              onClick={() => setStep(2)}
+              rightIcon={missing > 0 ? undefined : <ArrowRight size={22} />}
+            >
+              {missing > 0
+                ? `Te ${missing === 1 ? 'falta 1 pista' : `faltan ${missing} pistas`} para poder decidir`
+                : 'Siguiente: decidir'}
+            </Button>
+            <Button variant="outline" fullWidth onClick={() => setStep(0)} leftIcon={<ArrowLeft size={22} />}>
+              Anterior
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {/* ───────── PASO 3 · DECIDIR ───────── */}
+      {step === 2 && (
+        <section className="space-y-4" aria-label="Paso 3: Decidir">
+          <PinnedStimulus content={content} pistas={pistas} reviewed={reviewed} />
+
+          <div data-escuchar>
+            <h2 className="text-2xl font-bold">¿Qué harías ahora?</h2>
+            <p className="text-text-muted text-sm mt-1">
+              {confirmed ? 'Esta fue tu respuesta.' : 'Elige una opción. Puedes cambiarla antes de confirmar.'}
+            </p>
+          </div>
+
+          <div role="radiogroup" aria-label="Opciones de respuesta" className="space-y-3">
+            {content.choices.map((choice, i) => {
+              const isSelected = selectedChoiceId === choice.id;
+              const result = confirmed
+                ? isSelected
+                  ? choice.isCorrect
+                    ? 'correct'
+                    : 'incorrect'
+                  : choice.isCorrect
+                  ? 'safe-answer'
+                  : undefined
+                : undefined;
+              return (
+                <OptionCard
+                  key={choice.id}
+                  letter={LETTERS[i]}
+                  label={choice.label}
+                  selected={isSelected}
+                  result={result}
+                  disabled={confirmed}
+                  onSelect={() => setSelectedChoiceId(choice.id)}
+                />
+              );
+            })}
+          </div>
+
+          {!confirmed && (
+            <div className="flex flex-col gap-3 pt-1">
+              <Button fullWidth disabled={!selectedChoice} onClick={handleConfirm}>
+                {selectedChoice ? 'Confirmar mi respuesta' : 'Elige una opción para confirmar'}
+              </Button>
+              <Button variant="outline" fullWidth onClick={() => setStep(1)} leftIcon={<ArrowLeft size={22} />}>
+                Anterior
+              </Button>
+            </div>
+          )}
+
+          {confirmed && isSuccess && (
+            <Card className="border-2 border-success bg-success-light space-y-4" aria-live="polite">
+              <div className="flex items-start gap-3" data-escuchar>
+                <CheckCircle2 size={32} className="text-success shrink-0" aria-hidden="true" />
+                <div>
+                  <h3 className="text-xl font-bold text-success">¡Bien hecho!</h3>
+                  <p className="mt-1">{content.feedback.correct}</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button fullWidth onClick={() => navigate('/')} leftIcon={<MapPin size={22} />}>
+                  Seguir en mi camino
+                </Button>
+                <Button variant="outline" fullWidth onClick={resetRun} leftIcon={<RefreshCw size={20} />}>
+                  Repasar este caso
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {confirmed && !isSuccess && (
+            <Card className="border-2 border-danger bg-danger-light space-y-4" aria-live="polite">
+              <div className="flex items-start gap-3" data-escuchar>
+                <AlertTriangle size={32} className="text-danger shrink-0" aria-hidden="true" />
+                <div>
+                  <h3 className="text-xl font-bold text-danger">Esa opción era peligrosa</h3>
+                  <p className="mt-1">{content.feedback.incorrect}</p>
+                  <p className="mt-2 text-sm">
+                    No pasa nada: así se aprende. La opción segura está marcada en verde. Practica con otro caso
+                    del mismo tema.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <Button fullWidth onClick={handleTryAlternative} leftIcon={<RefreshCw size={22} />}>
+                  Practicar con otro caso
+                </Button>
+                <Button variant="outline" fullWidth onClick={resetRun}>
+                  Repasar este caso
+                </Button>
+              </div>
+            </Card>
+          )}
+        </section>
+      )}
+
+      {/* D1 · Salida segura: confirma sin castigo y recuerda que es una práctica */}
+      <Modal
+        isOpen={exitOpen}
+        onClose={() => setExitOpen(false)}
+        title="¿Salir de la práctica?"
+        footer={
+          <div className="flex flex-col gap-3 w-full">
+            <Button variant="safe" fullWidth onClick={() => navigate('/')} leftIcon={<LogOut size={22} />}>
+              Sí, salir seguro
+            </Button>
+            <Button variant="outline" fullWidth onClick={() => setExitOpen(false)}>
+              Seguir practicando
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex items-start gap-3" data-escuchar>
+          <Info size={26} className="text-success shrink-0 mt-0.5" aria-hidden="true" />
+          <p>
+            Tu avance se guarda solo. Esto es una práctica segura: tu dinero y tus datos no corren ningún riesgo.
+          </p>
         </div>
-      </Card>
+      </Modal>
+
+      <span className="sr-only" aria-live="polite">
+        Paso {step + 1} de 3: {PRACTICE_STEPS[step]}
+      </span>
     </div>
   );
 }

@@ -9,6 +9,32 @@ export interface ScenarioChoice {
   isCorrect: boolean;
 }
 
+/**
+ * Dónde aparece la etiqueta de la pista (componente C4 de la guía de estilo):
+ * - 'sender': junto al remitente o número
+ * - 'subject' / 'link' / 'attachment': partes de un correo
+ * - 'mN': debajo del mensaje N (o de la frase N de la llamada, o del párrafo N del correo)
+ * - 'receipt-*': un dato del comprobante de pago
+ */
+export type PistaTarget =
+  | 'sender'
+  | 'subject'
+  | 'link'
+  | 'attachment'
+  | `m${number}`
+  | 'receipt-amount'
+  | 'receipt-date'
+  | 'receipt-code'
+  | 'receipt-op';
+
+export interface Pista {
+  /** Texto corto de la etiqueta: «Número nuevo» */
+  label: string;
+  /** Por qué es sospechoso, en lenguaje cotidiano (15 palabras o menos) */
+  detail: string;
+  target: PistaTarget;
+}
+
 export interface ScenarioFeedback {
   correct: string;
   incorrect: string;
@@ -43,6 +69,9 @@ export interface WhatsAppContent {
     isReceipt?: boolean;
     receiptAmount?: string;
     receiptService?: string;
+    receiptDate?: string;
+    receiptCode?: string;
+    receiptOperation?: string;
   }[];
   choices: ScenarioChoice[];
   feedback: ScenarioFeedback;
@@ -68,6 +97,8 @@ export interface Scenario {
   title: string;
   summary: string;
   alertSignals: string[];
+  /** Pistas que el usuario revisa en el paso 2 antes de poder decidir (D4, D6) */
+  pistas: Pista[];
   difficulty: 'Fácil' | 'Medio' | 'Difícil';
   content?: ScenarioContent;
 }
@@ -87,7 +118,7 @@ export const practiceModules: PracticeModule[] = [
   {
     id: 'vishing',
     title: 'Llamadas falsas',
-    subtitle: 'Vishing',
+    subtitle: 'Alguien dice ser del banco',
     description: 'Simula llamadas de personas que intentan engañarte.',
     icon: Phone,
     color: 'text-primary',
@@ -99,6 +130,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'El banco pide un código',
         summary: 'Un supuesto trabajador del banco llama pidiendo el código de seguridad de tu tarjeta.',
         alertSignals: ['Te piden un código de seguridad', 'Presión para actuar rápido'],
+        pistas: [
+          { label: "Número de celular", detail: "Un número de celular no prueba que sea tu banco.", target: 'sender' },
+          { label: "Te asusta", detail: "Dice que alguien quiere entrar a tu cuenta para que actúes sin pensar.", target: 'm0' },
+          { label: "Pide tu código", detail: "Ningún banco te pide el código que llega a tu celular.", target: 'm1' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'vishing',
@@ -126,6 +162,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Familiar con número nuevo',
         summary: 'Alguien dice ser un familiar con un número nuevo y pide dinero urgente.',
         alertSignals: ['Número desconocido', 'Urgencia para enviar dinero'],
+        pistas: [
+          { label: "Número nuevo", detail: "No es el número que tienes guardado de tu familiar.", target: 'sender' },
+          { label: "Urgencia", detail: "Pide dinero «urgente» para que no tengas tiempo de verificar.", target: 'm1' },
+          { label: "Secreto", detail: "Pide que no le cuentes a nadie: así nadie te advierte.", target: 'm1' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'vishing',
@@ -153,6 +194,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Falso premio',
         summary: 'Llamada informando que ganaste un premio y solicitan tus datos personales.',
         alertSignals: ['Premio inesperado', 'Piden datos personales'],
+        pistas: [
+          { label: "Premio inesperado", detail: "No participaste en ningún sorteo.", target: 'm0' },
+          { label: "Pago por adelantado", detail: "Un premio de verdad no te cobra para entregártelo.", target: 'm1' },
+          { label: "Pide tus datos", detail: "Quieren tus datos personales por teléfono.", target: 'm1' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'vishing',
@@ -179,7 +225,7 @@ export const practiceModules: PracticeModule[] = [
   {
     id: 'smishing',
     title: 'SMS falsos',
-    subtitle: 'Smishing',
+    subtitle: 'Te piden entrar a un enlace',
     description: 'Identifica mensajes de texto sospechosos.',
     icon: MessageSquare,
     color: 'text-warning',
@@ -191,6 +237,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Cuenta bloqueada',
         summary: 'SMS que dice que tu cuenta fue bloqueada y pide que hagas clic en un enlace.',
         alertSignals: ['Mensaje de urgencia', 'Enlace sospechoso'],
+        pistas: [
+          { label: "Remitente sin verificar", detail: "Cualquiera puede poner un nombre como «BcoSeguro» en un SMS.", target: 'sender' },
+          { label: "Te asusta", detail: "Dice que tu cuenta está bloqueada para apurarte.", target: 'm0' },
+          { label: "Enlace no oficial", detail: "Esa dirección no es la página oficial de tu banco.", target: 'm0' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'smishing',
@@ -216,6 +267,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Falso premio',
         summary: 'SMS de premio inesperado con un enlace para reclamar.',
         alertSignals: ['Premio no solicitado', 'Enlace corto o extraño'],
+        pistas: [
+          { label: "Número desconocido", detail: "No conoces este número.", target: 'sender' },
+          { label: "Premio inesperado", detail: "No participaste en ningún sorteo.", target: 'm0' },
+          { label: "Enlace extraño", detail: "Te pide entrar a una página desconocida para «reclamar».", target: 'm0' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'smishing',
@@ -241,6 +297,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Yape falso por S/250',
         summary: 'SMS con supuesto Yape por S/250 y enlace para reclamar.',
         alertSignals: ['Notificación de pago inesperado', 'Enlace para reclamar'],
+        pistas: [
+          { label: "Remitente sin verificar", detail: "Yape te avisa dentro de su app, no por SMS con enlaces.", target: 'sender' },
+          { label: "Te apura", detail: "Te da «24 horas» para que no lo pienses.", target: 'm0' },
+          { label: "Enlace no oficial", detail: "«yape-reclamar.pe» no es la app oficial de Yape.", target: 'm0' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'smishing',
@@ -266,6 +327,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Entrega de paquete',
         summary: 'SMS de delivery que pide un pago para entregar un paquete.',
         alertSignals: ['Pago inesperado', 'No esperabas ningún paquete'],
+        pistas: [
+          { label: "Número desconocido", detail: "No conoces este número.", target: 'sender' },
+          { label: "No esperabas nada", detail: "Si no compraste nada, no hay paquete que recibir.", target: 'm0' },
+          { label: "Pide un pago", detail: "Te cobra por un enlace para «liberar» el paquete.", target: 'm0' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'smishing',
@@ -290,7 +356,7 @@ export const practiceModules: PracticeModule[] = [
   {
     id: 'whatsapp',
     title: 'WhatsApp falsos',
-    subtitle: 'WhatsApp',
+    subtitle: 'Un «familiar» te pide dinero',
     description: 'Reconoce mensajes y comprobantes falsos.',
     icon: MessageCircle,
     color: 'text-success',
@@ -302,6 +368,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Familiar con número nuevo',
         summary: 'Contacto desconocido dice ser familiar y pide dinero.',
         alertSignals: ['Número nuevo', 'Urgencia económica'],
+        pistas: [
+          { label: "Número nuevo", detail: "No es el número que tienes guardado de Luis.", target: 'sender' },
+          { label: "Urgencia", detail: "Pide dinero «urgente» para que no verifiques.", target: 'm1' },
+          { label: "Secreto", detail: "Pide no contarle a su mamá: así nadie te advierte.", target: 'm1' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'whatsapp',
@@ -328,6 +399,12 @@ export const practiceModules: PracticeModule[] = [
         title: 'Comprobante Yape falso',
         summary: 'Alguien envía un comprobante falso por S/180 y pide que entregues el producto.',
         alertSignals: ['Comprobante puede ser editado', 'Presión para entregar'],
+        pistas: [
+          { label: "Monto", detail: "Una captura se puede editar: el dinero solo vale si está en tu app.", target: 'receipt-amount' },
+          { label: "Fecha", detail: "La fecha no es de hoy: es una captura antigua.", target: 'receipt-date' },
+          { label: "Código", detail: "Falta el código de seguridad de 3 dígitos.", target: 'receipt-code' },
+          { label: "N.° de operación", detail: "El número está incompleto y no se puede verificar.", target: 'receipt-op' },
+        ],
         difficulty: 'Difícil',
         content: {
           type: 'whatsapp',
@@ -335,7 +412,16 @@ export const practiceModules: PracticeModule[] = [
           contactNumber: '+51 999 777 888',
           messages: [
             { sender: 'them', text: 'Hola, ya te Yapeé los S/180 por el producto. Te envío el comprobante.' },
-            { sender: 'them', text: '', isReceipt: true, receiptAmount: 'S/180.00', receiptService: 'Yape' },
+            {
+              sender: 'them',
+              text: '',
+              isReceipt: true,
+              receiptAmount: 'S/ 180.00',
+              receiptService: 'Yape',
+              receiptDate: '14 may. 2023 · 6:45 p. m.',
+              receiptCode: '— — —',
+              receiptOperation: '•••286',
+            },
             { sender: 'them', text: '¿Puedes traerme el producto ahora?' },
           ],
           choices: [
@@ -355,6 +441,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Devolución de S/450',
         summary: 'Mensaje de supuesto soporte ofreciendo una devolución.',
         alertSignals: ['Oferta de devolución inesperada', 'Piden datos'],
+        pistas: [
+          { label: "Número desconocido", detail: "No es un número oficial de tu banco que tú conozcas.", target: 'sender' },
+          { label: "Dinero inesperado", detail: "No pediste ninguna devolución.", target: 'm1' },
+          { label: "Pide tus datos", detail: "Te piden tu número de cuenta y DNI por chat.", target: 'm1' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'whatsapp',
@@ -381,6 +472,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Transferencia equivocada',
         summary: 'Dicen haberte depositado por error y piden que devuelvas el dinero.',
         alertSignals: ['Historia de error', 'Presión para devolver'],
+        pistas: [
+          { label: "Historia de error", detail: "Es un truco común para que «devuelvas» dinero que nunca llegó.", target: 'm0' },
+          { label: "Te apura", detail: "Pide la devolución «hoy mismo».", target: 'm1' },
+          { label: "Captura sin verificar", detail: "Una imagen no prueba nada: revisa tu cuenta.", target: 'm2' },
+        ],
         difficulty: 'Difícil',
         content: {
           type: 'whatsapp',
@@ -389,7 +485,15 @@ export const practiceModules: PracticeModule[] = [
           messages: [
             { sender: 'them', text: 'Hola, te deposité S/900 por error. Necesito que me devuelvas el dinero.' },
             { sender: 'them', text: 'Te envío el comprobante. Por favor, hazme la devolución hoy mismo.' },
-            { sender: 'them', text: '', isReceipt: true, receiptAmount: 'S/900.00', receiptService: 'Transferencia bancaria' },
+            {
+              sender: 'them',
+              text: '',
+              isReceipt: true,
+              receiptAmount: 'S/ 900.00',
+              receiptService: 'Transferencia bancaria',
+              receiptDate: 'Hoy · 9:12 a. m.',
+              receiptOperation: '•••4417',
+            },
           ],
           choices: [
             { id: 'return', label: 'Le devuelvo el dinero porque me muestra el comprobante', isCorrect: false },
@@ -408,6 +512,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Soporte pide código',
         summary: 'WhatsApp de "soporte" pide un código de verificación.',
         alertSignals: ['Soporte no solicita códigos', 'Código de verificación personal'],
+        pistas: [
+          { label: "No es WhatsApp", detail: "WhatsApp no te escribe por chat para pedirte nada.", target: 'sender' },
+          { label: "Te asusta", detail: "Amenaza con suspender tu cuenta en 24 horas.", target: 'm0' },
+          { label: "Pide tu código", detail: "Con tu código de 6 dígitos te roban la cuenta.", target: 'm1' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'whatsapp',
@@ -433,7 +542,7 @@ export const practiceModules: PracticeModule[] = [
   {
     id: 'phishing',
     title: 'Correos falsos',
-    subtitle: 'Phishing',
+    subtitle: 'Un correo te pide tus datos',
     description: 'Aprende a detectar correos engañosos.',
     icon: Mail,
     color: 'text-danger',
@@ -445,6 +554,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Cuenta bancaria bloqueada',
         summary: 'Correo que advierte bloqueo y pide hacer clic en un enlace.',
         alertSignals: ['Amenaza de bloqueo', 'Enlace para confirmar datos'],
+        pistas: [
+          { label: "Dirección falsa", detail: "«bancoseguro-seguro.pe» imita al banco, pero no es su dirección.", target: 'sender' },
+          { label: "Te asusta", detail: "Dice que tu cuenta está bloqueada para apurarte.", target: 'subject' },
+          { label: "Enlace para tus datos", detail: "Tu banco nunca te pide verificar datos con un enlace.", target: 'link' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'email',
@@ -474,6 +588,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Falsa institución pública',
         summary: 'Correo de supuesta SUNAT o entidad pública solicitando datos.',
         alertSignals: ['Remitente dudoso', 'Solicitud de datos personales'],
+        pistas: [
+          { label: "Dirección falsa", detail: "«sunnat-gob.pe» tiene una letra de más: no es SUNAT.", target: 'sender' },
+          { label: "Archivo inesperado", detail: "Un archivo que no esperabas puede dañar tu celular.", target: 'attachment' },
+          { label: "Te apura", detail: "«Vence en 24 horas» busca que no verifiques.", target: 'm2' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'email',
@@ -503,6 +622,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Promoción o premio falso',
         summary: 'Correo de oferta o premio con un botón llamativo.',
         alertSignals: ['Oferta demasiado buena', 'Botón para reclamar'],
+        pistas: [
+          { label: "Remitente desconocido", detail: "No conoces esta dirección de correo.", target: 'sender' },
+          { label: "Premio inesperado", detail: "No participaste en ningún sorteo.", target: 'm0' },
+          { label: "Pago por adelantado", detail: "Te cobran S/15 para «enviar» un premio.", target: 'm1' },
+        ],
         difficulty: 'Fácil',
         content: {
           type: 'email',
@@ -531,6 +655,11 @@ export const practiceModules: PracticeModule[] = [
         title: 'Archivo adjunto sospechoso',
         summary: 'Correo con archivo adjunto inesperado.',
         alertSignals: ['Adjunto no esperado', 'Remitente desconocido'],
+        pistas: [
+          { label: "Remitente desconocido", detail: "No conoces a esta empresa.", target: 'sender' },
+          { label: "Archivo .zip", detail: "Los archivos comprimidos pueden esconder virus.", target: 'attachment' },
+          { label: "Pide tus datos", detail: "Te pide enviar tus datos personales.", target: 'm1' },
+        ],
         difficulty: 'Medio',
         content: {
           type: 'email',
