@@ -31,7 +31,7 @@ const faqs = [
   {
     question: '¿Puedo repetir los ejercicios?',
     answer:
-      'Sí, puedes repetir todos los ejercicios y evaluaciones las veces que quieras. No hay penalizaciones.',
+      'Sí, puedes repetir todos los ejercicios y evaluaciones las veces que quieras. No pierdes nada por equivocarte.',
   },
   {
     question: '¿La aplicación funciona sin internet?',

@@ -28,7 +28,7 @@ export function ProgressPage() {
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="page-title mb-2">Mi Progreso</h2>
+        <h2 className="page-title mb-2">Mi avance</h2>
         <p className="page-subtitle">
           Aquí puedes ver todos tus logros y los módulos que has ido superando.
         </p>
@@ -38,12 +38,12 @@ export function ProgressPage() {
         <Card className="flex flex-col items-center text-center gap-2 p-5">
           <BarChart3 size={36} className="text-primary" aria-hidden="true" />
           <p className="text-text-muted text-base">Ejercicios realizados</p>
-          <p className="text-4xl font-extrabold text-text">{totalExercises}</p>
+          <p className="text-4xl font-bold text-text">{totalExercises}</p>
         </Card>
         <Card className="flex flex-col items-center text-center gap-2 p-5">
           <CheckCircle size={36} className="text-success" aria-hidden="true" />
           <p className="text-text-muted text-base">Ejercicios completados</p>
-          <p className="text-4xl font-extrabold text-text">{completedExercises}</p>
+          <p className="text-4xl font-bold text-text">{completedExercises}</p>
         </Card>
       </div>
 
