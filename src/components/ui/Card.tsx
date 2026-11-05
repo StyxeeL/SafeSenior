@@ -20,7 +20,9 @@ export function Card({
   return (
     <div
       className={[
-        'bg-surface rounded-2xl p-5 shadow-card',
+        // Si la tarjeta trae su propio fondo (verde acierto, rojo alerta…), se respeta
+        /(^|\s)bg-/.test(className) ? '' : 'bg-surface',
+        'rounded-2xl p-5 shadow-card',
         'border border-transparent',
         isClickable
           ? 'cursor-pointer hover:shadow-lg hover:border-primary/20 active:scale-[0.99] transition-all duration-200'

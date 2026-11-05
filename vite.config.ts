@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'SafeSenior',
         short_name: 'SafeSenior',
         description: 'Aprende a reconocer y prevenir estafas digitales de forma sencilla y segura.',
-        theme_color: '#1E4D8C',
-        background_color: '#F7F9FC',
+        theme_color: '#FAF8F3',
+        background_color: '#FAF8F3',
         display: 'standalone',
         scope: '/',
         start_url: '/',
@@ -41,6 +41,18 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         maximumFileSizeToCacheInBytes: 3000000,
+        // Guarda la fuente Atkinson Hyperlegible para que funcione sin internet
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
     }),
   ],

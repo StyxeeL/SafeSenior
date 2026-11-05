@@ -5,19 +5,20 @@ interface BadgeProps {
   variant?: BadgeVariant;
 }
 
+// Colores con significado fijo (guía de estilo v2)
 const variantClasses: Record<BadgeVariant, string> = {
   default: 'bg-gray-100 text-text',
-  success: 'bg-green-100 text-success',
-  warning: 'bg-yellow-100 text-warning',
-  danger: 'bg-red-100 text-danger',
-  info: 'bg-blue-100 text-primary',
+  success: 'bg-success-light text-success',
+  warning: 'bg-warning-light text-warning',
+  danger: 'bg-danger-light text-danger',
+  info: 'bg-info-light text-info',
 };
 
 export function Badge({ children, variant = 'default' }: BadgeProps) {
   return (
     <span
       className={[
-        'inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold',
+        'inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold',
         variantClasses[variant],
       ].join(' ')}
     >
