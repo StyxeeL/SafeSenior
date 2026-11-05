@@ -38,12 +38,12 @@ export function EmailViewer({ content }: EmailViewerProps) {
         {/* Asunto y Etiqueta */}
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-base font-extrabold text-gray-900 leading-snug">
+            <h3 className="text-base font-bold text-gray-900 leading-snug">
               {content.subject}
             </h3>
             <Star size={18} className="text-gray-300 shrink-0 mt-0.5" />
           </div>
-          <span className="inline-block mt-1 text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+          <span className="inline-block mt-1 text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
             Recibidos
           </span>
         </div>
@@ -56,17 +56,17 @@ export function EmailViewer({ content }: EmailViewerProps) {
           <div className="min-w-0 flex-1 leading-tight">
             <div className="flex items-center justify-between">
               <p className="font-bold text-sm text-gray-900 truncate">{content.fromName}</p>
-              <span className="text-[11px] text-gray-400">10:30 a. m.</span>
+              <span className="text-xs text-gray-600">10:30 a. m.</span>
             </div>
-            <p className="text-[11px] text-gray-500 truncate font-mono mt-0.5">
+            <p className="text-xs text-gray-600 truncate font-mono mt-0.5">
               {content.fromEmail}
             </p>
-            <p className="text-[10px] text-gray-400 mt-0.5">para mí ▼</p>
+            <p className="text-xs text-gray-600 mt-0.5">para mí ▼</p>
           </div>
         </div>
 
         {/* Cuerpo del Correo */}
-        <div className="pt-2 pb-3 space-y-2.5 border-t border-gray-100 text-gray-800 text-[13px] leading-relaxed">
+        <div className="pt-2 pb-3 space-y-2.5 border-t border-gray-100 text-gray-800 text-base leading-relaxed">
           {content.body.map((paragraph, index) => (
             <p key={index}>{paragraph}</p>
           ))}
@@ -78,7 +78,7 @@ export function EmailViewer({ content }: EmailViewerProps) {
                 <span>{content.linkText}</span>
                 <ExternalLink size={12} />
               </span>
-              <p className="text-[10px] text-red-600 font-semibold mt-1">
+              <p className="text-xs text-red-600 font-semibold mt-1">
                 ⚠️ Enlace sospechoso dentro del correo
               </p>
             </div>
@@ -94,7 +94,7 @@ export function EmailViewer({ content }: EmailViewerProps) {
                 <p className="text-xs font-bold text-gray-900 truncate">
                   {content.attachmentName}
                 </p>
-                <p className="text-[10px] text-gray-500">Archivo adjunto • 340 KB</p>
+                <p className="text-xs text-gray-600">Archivo adjunto • 340 KB</p>
               </div>
             </div>
           )}

@@ -72,11 +72,11 @@ export function QuizVisual({ type, data }: QuizVisualProps) {
               return (
                 <div key={index} className="flex justify-start mb-2">
                   <div className="relative overflow-hidden rounded-xl bg-green-50 border border-green-200 p-3 max-w-[85%]">
-                    <div className="absolute top-0 left-0 right-0 bg-green-600 text-white text-[10px] font-bold px-2 py-0.5">
+                    <div className="absolute top-0 left-0 right-0 bg-green-600 text-white text-xs font-bold px-2 py-0.5">
                       SIMULACIÓN
                     </div>
                     <div className="pt-4">
-                      <p className="text-[10px] text-text-muted font-semibold uppercase">{message.receiptService}</p>
+                      <p className="text-xs text-text-muted font-semibold uppercase">{message.receiptService}</p>
                       <p className="text-xl font-bold text-text">{message.receiptAmount}</p>
                       <p className="text-xs text-danger font-bold">NO ES REAL</p>
                     </div>
@@ -96,7 +96,7 @@ export function QuizVisual({ type, data }: QuizVisualProps) {
                 >
                   <p>{message.text}</p>
                   <div className="flex items-center justify-end gap-1 mt-1">
-                    <span className="text-[10px] text-text-muted">Ahora</span>
+                    <span className="text-xs text-text-muted">Ahora</span>
                     {message.sender === 'user' && <CheckCheck size={12} className="text-blue-500" aria-hidden="true" />}
                   </div>
                 </div>

@@ -45,7 +45,7 @@ export const learnTopics: LearnTopic[] = [
   },
   {
     id: 'vishing',
-    title: 'Llamadas falsas (vishing)',
+    title: 'Llamadas falsas',
     description: 'Aprende a identificar cuando alguien finge ser del banco o de un familiar.',
     icon: 'Phone',
     color: 'text-primary',
@@ -74,7 +74,7 @@ export const learnTopics: LearnTopic[] = [
   },
   {
     id: 'smishing',
-    title: 'SMS falsos (smishing)',
+    title: 'SMS falsos',
     description: 'Mensajes de texto que buscan robar tus datos.',
     icon: 'MessageSquare',
     color: 'text-warning',
@@ -133,7 +133,7 @@ export const learnTopics: LearnTopic[] = [
   },
   {
     id: 'phishing',
-    title: 'Correos falsos (phishing)',
+    title: 'Correos falsos',
     description: 'Correos que imitan a bancos o instituciones.',
     icon: 'Mail',
     color: 'text-primary',

@@ -130,12 +130,32 @@ SafeSenior/
 
 ---
 
+## 🎨 Rediseño v2: reglas de Mandel y guía de estilo (Sesión 7)
+
+Cada práctica sigue siempre los mismos tres pasos: **Mirar → Pista → Decidir**.
+
+| Decisión | Cómo se aplica en la app |
+| :--- | :--- |
+| D1 · Salir seguro | Botón verde fijo arriba a la derecha en toda práctica; confirma la salida sin castigo y recuerda que el avance se guarda. |
+| D3 · Escuchar | Botón con texto en todas las pantallas; lee el paso actual en voz alta. |
+| D4 · Decidir después de revisar | Las opciones A/B/C se habilitan tras revisar todas las pistas y se pueden cambiar antes de «Confirmar mi respuesta». |
+| D5 · Bloqueo que explica | El botón bloqueado dice cuántas pistas faltan («Te faltan 2 pistas para poder decidir»). |
+| D6 · Pistas numeradas | De 3 a 4 pistas por caso, tocables (≥ 48 dp), que pasan de ámbar ⚠ a verde ✓ y explican por qué son sospechosas. |
+| D7 · Mensaje fijado | En Pista y Decidir el mensaje queda visible con cada pista debajo de la parte que señala. |
+| D8 · Legibilidad | Ningún texto bajo 16 px; contraste ≥ 7:1 en texto principal; la letra crece desde Configuración. |
+| D9 · Lenguaje cotidiano | Sin tecnicismos («vishing», «smishing»); vocabulario único («Práctica segura», «Mi avance»). |
+| D10 · Una sola navegación | Configuración solo en la barra inferior; «Ayuda» con texto; sin barra inferior durante una práctica. |
+
+**Colores con significado fijo:** Tinta `#1F2937` (texto y botón principal), Verde seguro `#17703F` (salir seguro, acierto), Rojo alerta `#B42318` (solo peligro), Ámbar pista `#8A4B00` sobre `#FFF4D6`, Azul información `#1D4ED8`, fondo crema `#FAF8F3`. **Tipografía:** Atkinson Hyperlegible.
+
+---
+
 ## ♿ Accesibilidad (WCAG 2.2 AA)
 
-* **Botones amplios (Ley de Fitts):** Áreas táctiles mínimas de 64×64 px y espaciado preventivo de errores.
+* **Botones amplios:** Áreas táctiles de 48 a 72 dp y espaciado preventivo de errores.
 * **Tamaño de texto graduable:** Normal, grande y muy grande desde Configuración.
-* **Modo de alto contraste:** Contraste mejorado para usuarios con baja visión o cataratas.
-* **Lectura en voz alta:** Síntesis de voz nativa del navegador para los textos teóricos.
+* **Modo de alto contraste:** Cambia todos los colores de la interfaz para usuarios con baja visión o cataratas.
+* **Lectura en voz alta:** Botón «Escuchar» en todas las pantallas.
 * **Audio de retroalimentación:** Sonidos sutiles que confirman acciones correctas o señalan alertas sin sobresaltos.
 * **Navegación accesible:** Navegación por teclado, atajo *"Saltar al contenido principal"* y etiquetas ARIA en todos los nodos interactivos.
 

@@ -40,7 +40,7 @@ export function QuizResultPage() {
   } else if (percentage < 50) {
     message = 'No te preocupes. Todo es parte del aprendizaje.';
     recommendation =
-      'Puedes volver a revisar la lección o repetir el reto cuando quieras. ¡No hay penalizaciones!';
+      'Puedes volver a revisar la lección o repetir el reto cuando quieras. No pierdes nada por equivocarte.';
   }
 
   const repeatLink = moduleId ? `/evaluame?module=${moduleId}` : '/evaluame';
@@ -73,7 +73,7 @@ export function QuizResultPage() {
             <p className="text-sm uppercase tracking-wider text-amber-800 font-bold">
               Certificado de Reconocimiento
             </p>
-            <h3 className="text-2xl font-extrabold text-amber-950 mt-1">
+            <h3 className="text-2xl font-bold text-amber-950 mt-1">
               Protector Senior en Seguridad Digital
             </h3>
             <p className="text-amber-900 mt-2 text-base leading-relaxed">
@@ -90,7 +90,7 @@ export function QuizResultPage() {
 
       <Card className="text-center">
         <p className="text-text-muted mb-2 text-lg">Puntuación alcanzada</p>
-        <p className="text-5xl font-black text-text mb-4">
+        <p className="text-5xl font-bold text-text mb-4">
           {score} <span className="text-2xl text-text-muted">/ {total}</span>
         </p>
         <ProgressBar

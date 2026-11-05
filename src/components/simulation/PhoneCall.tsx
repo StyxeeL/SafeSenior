@@ -42,7 +42,7 @@ export function PhoneCall({ content, onHangUpDirectly }: PhoneCallProps) {
         {callState === 'incoming' && (
           <div className="flex-1 flex flex-col justify-between text-center py-4">
             <div className="space-y-1">
-              <span className="text-[11px] uppercase tracking-wider text-gray-400 font-bold bg-white/10 px-3 py-1 rounded-full inline-block">
+              <span className="text-xs uppercase tracking-wider text-gray-400 font-bold bg-white/10 px-3 py-1 rounded-full inline-block">
                 Llamada entrante • SIM 1
               </span>
             </div>
@@ -50,14 +50,14 @@ export function PhoneCall({ content, onHangUpDirectly }: PhoneCallProps) {
             <div className="my-auto space-y-3">
               {/* Avatar con efecto de pulso */}
               <div className="relative inline-block">
-                <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center text-3xl font-black text-white shadow-xl mx-auto border-2 border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-xl mx-auto border-2 border-white/20">
                   {content.avatarInitial}
                 </div>
                 <div className="absolute inset-0 rounded-full ring-4 ring-white/10 animate-ping opacity-25" />
               </div>
 
               <div>
-                <h3 className="text-2xl font-black text-white tracking-tight">
+                <h3 className="text-2xl font-bold text-white tracking-tight">
                   {content.callerName}
                 </h3>
                 <p className="text-base text-gray-300 font-medium mt-0.5">
@@ -137,19 +137,19 @@ export function PhoneCall({ content, onHangUpDirectly }: PhoneCallProps) {
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                     <MicOff size={18} />
                   </div>
-                  <span className="text-[10px]">Silenciar</span>
+                  <span className="text-xs">Silenciar</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                     <Grid size={18} />
                   </div>
-                  <span className="text-[10px]">Teclado</span>
+                  <span className="text-xs">Teclado</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <div className="w-10 h-10 rounded-full bg-primary/40 text-primary-light flex items-center justify-center border border-primary/50">
                     <Volume2 size={18} />
                   </div>
-                  <span className="text-[10px] text-primary-light font-bold">Altavoz</span>
+                  <span className="text-xs text-primary-light font-bold">Altavoz</span>
                 </div>
               </div>
 

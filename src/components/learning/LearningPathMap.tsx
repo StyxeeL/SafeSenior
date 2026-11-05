@@ -20,6 +20,7 @@ import {
   type LearningPathStep,
 } from '@/data/learningPath';
 import { useProgress } from '@/hooks/useProgress';
+import { getModuleById } from '@/data/practiceScenarios';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
@@ -159,7 +160,49 @@ export function LearningPathMap() {
   };
 
   return (
-    <div className="relative pb-24 space-y-12">
+    <div className="relative pb-24 space-y-10">
+      {/* D8 · D9 · D11 — Menú de situaciones del prototipo v2: lenguaje cotidiano y avance visible */}
+      <section aria-labelledby="que-practicar" data-escuchar>
+        <h2 id="que-practicar" className="page-title mb-3">
+          ¿Qué quieres practicar hoy?
+        </h2>
+        <div className="grid grid-cols-2 gap-3">
+          {learningPathModules.map((module) => {
+            const info = getModuleById(module.id);
+            const Icon = info?.icon ?? BookOpen;
+            const done = module.steps.filter((s) => stepStatuses[s.id] === 'completed').length;
+            return (
+              <button
+                key={module.id}
+                type="button"
+                onClick={() =>
+                  document.getElementById(`modulo-${module.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }
+                className="text-left bg-surface rounded-2xl border-2 border-gray-200 hover:border-primary p-3 min-h-[150px] flex flex-col gap-2 shadow-card focus:outline-none focus-visible:ring-4 focus-visible:ring-info/40"
+              >
+                <span className="w-11 h-11 rounded-xl bg-primary-light text-text flex items-center justify-center">
+                  <Icon size={24} aria-hidden="true" />
+                </span>
+                <span className="font-bold text-base leading-tight">{info?.title}</span>
+                <span className="text-sm text-text-muted leading-snug flex-1">{info?.subtitle}</span>
+                {done > 0 ? (
+                  <span className="self-start inline-flex items-center gap-1 text-xs font-bold text-success bg-success-light px-2.5 py-1 rounded-full">
+                    <Check size={14} strokeWidth={3} aria-hidden="true" /> {done} de {module.steps.length} hechos
+                  </span>
+                ) : (
+                  <span className="self-start text-xs font-bold text-text bg-gray-100 px-2.5 py-1 rounded-full">
+                    Nueva
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        <p className="text-sm text-text-muted mt-3">Todo es una práctica: no se usa tu dinero ni tus datos.</p>
+      </section>
+
+      <h2 className="page-title -mb-4">Tu camino, paso a paso</h2>
+
       {/* List of modules in order */}
       {learningPathModules.map((module) => {
         const completedCount = module.steps.filter((s) => stepStatuses[s.id] === 'completed').length;
@@ -169,35 +212,36 @@ export function LearningPathMap() {
         return (
           <section
             key={module.id}
-            className={`rounded-3xl border-2 ${module.colorScheme.border} ${module.colorScheme.bgLight} p-4 sm:p-6 shadow-sm`}
+            id={`modulo-${module.id}`}
+            className="scroll-mt-24 rounded-3xl border-2 border-gray-200 bg-surface p-4 sm:p-6 shadow-card"
           >
-            {/* Header del Bloque Temático */}
-            <div className={`rounded-2xl ${module.colorScheme.bgBanner} text-white p-4 sm:p-5 shadow-md mb-8`}>
+            {/* Encabezado del módulo */}
+            <div className="rounded-2xl bg-primary-light text-text p-4 sm:p-5 mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   {isModuleFinished ? (
-                    <span className="inline-flex items-center gap-1 text-xs uppercase font-extrabold tracking-wider bg-white text-green-700 px-3 py-1 rounded-full shadow-sm mb-1">
-                      ✓ ¡Módulo completado!
+                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-success text-white px-3 py-1 rounded-full mb-1">
+                      ✓ Módulo completado
                     </span>
                   ) : (
-                    <span className="inline-block text-xs uppercase font-extrabold tracking-wider bg-white/20 px-3 py-1 rounded-full mb-1">
+                    <span className="inline-block text-xs font-bold bg-surface border border-gray-300 px-3 py-1 rounded-full mb-1">
                       {module.title}
                     </span>
                   )}
-                  <h3 className="text-xl sm:text-2xl font-black">{module.subtitle}</h3>
+                  <h3 className="text-xl font-bold">{module.subtitle}</h3>
                 </div>
-                <div className="shrink-0 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-xl text-center">
-                  <p className="text-xs uppercase font-bold text-white/90">Progreso</p>
-                  <p className="text-lg font-black">
+                <div className="shrink-0 bg-surface px-4 py-2 rounded-xl text-center border border-gray-200">
+                  <p className="text-xs font-bold text-text-muted">Mi avance</p>
+                  <p className="text-lg font-bold">
                     {completedCount} de {totalCount} pasos
                   </p>
                 </div>
               </div>
 
               {/* Progress bar inside banner */}
-              <div className="w-full bg-black/20 h-2.5 rounded-full overflow-hidden mt-3">
+              <div className="w-full bg-gray-300 h-2.5 rounded-full overflow-hidden mt-3">
                 <div
-                  className="bg-white h-full transition-all duration-500 rounded-full"
+                  className="bg-success h-full transition-all duration-500 rounded-full"
                   style={{ width: `${(completedCount / totalCount) * 100}%` }}
                 />
               </div>
@@ -222,12 +266,12 @@ export function LearningPathMap() {
                   >
                     {/* Pulsing speech bubble for active node */}
                     {isActive && (
-                      <div className="absolute -top-12 z-10 flex flex-col items-center animate-bounce">
-                        <div className="bg-text text-white text-xs sm:text-sm font-extrabold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 whitespace-nowrap">
-                          <Sparkles size={16} className="text-amber-300" />
-                          <span>¡Toca aquí para continuar!</span>
+                      <div className="absolute -top-12 z-10 flex flex-col items-center">
+                        <div className="bg-primary text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                          <Sparkles size={16} aria-hidden="true" />
+                          <span>Sigue aquí</span>
                         </div>
-                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-text" />
+                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-primary" />
                       </div>
                     )}
 
@@ -243,24 +287,24 @@ export function LearningPathMap() {
                         'w-20 h-20 sm:w-22 sm:h-22 focus:outline-none focus:ring-4',
                         // Active State
                         isActive
-                          ? `${module.colorScheme.nodeBg} text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ${module.colorScheme.ringColor} scale-105 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.25)]`
+                          ? 'bg-primary text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ring-primary/30 scale-105 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.25)]'
                           // Completed State
                           : isCompleted
-                          ? `${module.colorScheme.nodeBg} text-white shadow-[0_5px_0_rgba(0,0,0,0.2)] hover:brightness-110 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.2)]`
+                          ? 'bg-success text-white shadow-[0_5px_0_rgba(0,0,0,0.2)] hover:brightness-110 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.2)]'
                           // Locked State
-                          : 'bg-gray-200 text-gray-400 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
+                          : 'bg-gray-200 text-gray-600 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
                       ].join(' ')}
                     >
                       {/* Inner Icon */}
                       {isLocked ? (
-                        <Lock size={32} className="text-gray-400" aria-hidden="true" />
+                        <Lock size={32} className="text-gray-600" aria-hidden="true" />
                       ) : (
                         <IconComponent size={36} strokeWidth={2.5} aria-hidden="true" />
                       )}
 
                       {/* Check badge for completed steps */}
                       {isCompleted && (
-                        <span className="absolute -top-1 -right-1 w-7 h-7 bg-white text-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-green-500 font-bold">
+                        <span className="absolute -top-1 -right-1 w-7 h-7 bg-white text-success rounded-full flex items-center justify-center shadow-md border-2 border-success font-bold">
                           <Check size={18} strokeWidth={3} />
                         </span>
                       )}
@@ -270,13 +314,13 @@ export function LearningPathMap() {
                     <div className="mt-2 text-center max-w-[150px]">
                       <p
                         className={`text-sm sm:text-base font-bold leading-tight ${
-                          isLocked ? 'text-text-muted/70' : 'text-text'
+                          isLocked ? 'text-text-muted' : 'text-text'
                         }`}
                       >
                         {step.shortTitle}
                       </p>
                       {isCompleted && (
-                        <span className="inline-block text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full mt-0.5">
+                        <span className="inline-block text-xs font-bold text-success bg-success-light px-2 py-0.5 rounded-full mt-0.5">
                           ✓ Hecho
                         </span>
                       )}
@@ -290,12 +334,12 @@ export function LearningPathMap() {
       })}
 
       {/* Gran Reto Final: Graduación SafeSenior */}
-      <section className="rounded-3xl border-3 border-amber-400 bg-gradient-to-b from-amber-50 to-orange-50 p-6 sm:p-8 shadow-md text-center max-w-md mx-auto">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 text-white rounded-2xl shadow-md mb-3">
+      <section className="rounded-3xl border-2 border-primary bg-surface p-6 sm:p-8 shadow-card text-center max-w-md mx-auto">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary text-white rounded-2xl shadow-md mb-3">
           <Trophy size={36} />
         </div>
-        <h3 className="text-2xl font-black text-amber-950">Gran Reto de Graduación</h3>
-        <p className="text-amber-900 text-base mt-1 mb-6">
+        <h3 className="text-2xl font-bold">Gran reto final</h3>
+        <p className="text-text-muted text-base mt-1 mb-6">
           Demuestra todo lo aprendido en los 4 módulos y obtén tu Diploma de Protector Senior.
         </p>
 
@@ -305,9 +349,9 @@ export function LearningPathMap() {
           className="flex flex-col items-center"
         >
           {stepStatuses[finalGraduationStep.id] === 'active' && (
-            <div className="animate-bounce mb-3">
-              <span className="bg-amber-600 text-white font-bold text-xs uppercase px-3 py-1 rounded-full shadow">
-                ¡Reto Final Disponible!
+            <div className="mb-3">
+              <span className="bg-primary text-white font-bold text-xs px-3 py-1 rounded-full">
+                Reto final disponible
               </span>
             </div>
           )}
@@ -319,10 +363,10 @@ export function LearningPathMap() {
             className={[
               'relative flex items-center justify-center w-24 h-24 rounded-full transition-all duration-200 select-none',
               stepStatuses[finalGraduationStep.id] === 'completed'
-                ? 'bg-amber-500 text-white shadow-[0_6px_0_#b45309] hover:brightness-110 active:translate-y-1 active:shadow-[0_2px_0_#b45309]'
+                ? 'bg-success text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] hover:brightness-110 active:translate-y-1'
                 : stepStatuses[finalGraduationStep.id] === 'active'
-                ? 'bg-amber-500 text-white shadow-[0_6px_0_#b45309] ring-4 ring-offset-4 ring-amber-400 animate-pulse scale-110 active:translate-y-1 active:shadow-[0_2px_0_#b45309]'
-                : 'bg-gray-200 text-gray-400 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
+                ? 'bg-primary text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ring-primary/30 scale-110 active:translate-y-1'
+                : 'bg-gray-200 text-gray-600 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
             ].join(' ')}
           >
             {stepStatuses[finalGraduationStep.id] === 'locked' ? (
@@ -332,16 +376,16 @@ export function LearningPathMap() {
             )}
 
             {stepStatuses[finalGraduationStep.id] === 'completed' && (
-              <span className="absolute -top-1 -right-1 w-8 h-8 bg-white text-green-600 rounded-full flex items-center justify-center shadow-md border-2 border-green-500 font-bold">
+              <span className="absolute -top-1 -right-1 w-8 h-8 bg-white text-success rounded-full flex items-center justify-center shadow-md border-2 border-success font-bold">
                 <Check size={20} strokeWidth={3} />
               </span>
             )}
           </button>
 
-          <p className="font-extrabold text-lg text-amber-950 mt-3">
+          <p className="font-bold text-lg mt-3">
             {stepStatuses[finalGraduationStep.id] === 'completed'
-              ? '🎓 ¡Graduado con Éxito!'
-              : 'Evaluación Integradora'}
+              ? '🎓 ¡Reto final superado!'
+              : 'Repaso de los 4 temas'}
           </p>
         </div>
       </section>
@@ -358,23 +402,14 @@ export function LearningPathMap() {
               onClick={scrollToActive}
               title="Toca para centrar en este paso"
             >
-              <span className="text-xs uppercase font-extrabold tracking-wider text-primary flex items-center gap-1 group-hover:underline">
-                <LocateFixed size={14} /> Siguiente actividad:
+              <span className="text-xs font-bold text-text-muted flex items-center gap-1 whitespace-nowrap group-hover:underline">
+                <LocateFixed size={14} aria-hidden="true" /> Lo que sigue
               </span>
-              <p className="text-base sm:text-lg font-black text-text truncate group-hover:text-primary transition-colors">
+              <p className="text-base font-bold text-text line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                 {activeStep.title}
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={scrollToActive}
-                className="p-2.5 rounded-xl bg-primary-light text-primary hover:bg-primary hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
-                title="Centrar pantalla en tu actividad actual"
-                aria-label="Centrar pantalla en tu actividad actual"
-              >
-                <LocateFixed size={22} />
-              </button>
               <Button
                 size="lg"
                 onClick={() => navigate(activeStep.link)}
@@ -392,7 +427,7 @@ export function LearningPathMap() {
       <Modal
         isOpen={Boolean(lockedModalStep)}
         onClose={() => setLockedModalStep(null)}
-        title="Paso protegido 🔒"
+        title="Este paso aún no está disponible"
         footer={
           <div className="flex flex-col sm:flex-row gap-3 w-full">
             <Button
@@ -421,7 +456,7 @@ export function LearningPathMap() {
             <p className="text-sm font-bold uppercase tracking-wider text-primary mb-1">
               Paso que debes completar primero:
             </p>
-            <p className="text-lg font-extrabold text-text">{activeStep?.title}</p>
+            <p className="text-lg font-bold text-text">{activeStep?.title}</p>
           </div>
           <p className="text-text-muted text-base">
             ¡Vas muy bien! Sigue avanzando paso a paso sin prisas.
