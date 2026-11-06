@@ -8,6 +8,8 @@ interface BarActionProps {
   tone?: 'neutral' | 'safe';
   pressed?: boolean;
   ariaLabel?: string;
+  /** Color del ícono en estado normal (p. ej. 'text-info') */
+  iconClass?: string;
 }
 
 /**
@@ -21,6 +23,7 @@ export function BarAction({
   tone = 'neutral',
   pressed,
   ariaLabel,
+  iconClass = '',
 }: BarActionProps) {
   const isSafe = tone === 'safe';
   return (
@@ -41,7 +44,7 @@ export function BarAction({
         isSafe ? 'flex-row text-sm' : 'flex-col text-xs',
       ].join(' ')}
     >
-      <Icon size={22} strokeWidth={2.4} aria-hidden="true" />
+      <Icon size={22} strokeWidth={2.4} aria-hidden="true" className={!isSafe && !pressed ? iconClass : ''} />
       <span className={isSafe ? 'text-left max-w-[4.2rem]' : ''}>{label}</span>
     </button>
   );

@@ -3,9 +3,9 @@ import { Map, BarChart3, Settings } from 'lucide-react';
 
 // Vocabulario único (guía de estilo): «Mi avance», no «Mi progreso».
 const navItems = [
-  { to: '/', label: 'Mi camino', icon: Map },
-  { to: '/progreso', label: 'Mi avance', icon: BarChart3 },
-  { to: '/configuracion', label: 'Configuración', icon: Settings },
+  { to: '/', label: 'Mi camino', icon: Map, on: 'bg-sms text-white', off: 'text-sms' },
+  { to: '/progreso', label: 'Mi avance', icon: BarChart3, on: 'bg-success text-white', off: 'text-success' },
+  { to: '/configuracion', label: 'Configuración', icon: Settings, on: 'bg-call text-white', off: 'text-call' },
 ];
 
 export function BottomNav() {
@@ -29,11 +29,11 @@ export function BottomNav() {
                     'flex flex-col items-center justify-center gap-1 w-full h-full rounded-2xl',
                     'text-xs font-bold transition-colors duration-200',
                     'focus:outline-none focus-visible:ring-4 focus-visible:ring-info/40',
-                    isActive ? 'text-white bg-primary' : 'text-text-muted hover:text-text hover:bg-gray-100',
+                    isActive ? item.on : 'text-text hover:bg-gray-100',
                   ].join(' ')}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <item.icon size={26} strokeWidth={isActive ? 2.6 : 2} aria-hidden="true" />
+                  <item.icon size={26} strokeWidth={isActive ? 2.6 : 2.2} aria-hidden="true" className={isActive ? '' : item.off} />
                   <span>{item.label}</span>
                 </Link>
               </li>

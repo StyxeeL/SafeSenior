@@ -34,6 +34,7 @@ export function PracticeTopBar({ step, speaking, canSpeak, onBack, onListen, onS
             label={speaking ? 'Detener' : 'Escuchar'}
             pressed={speaking}
             onClick={onListen}
+            iconClass="text-info"
             ariaLabel={speaking ? 'Detener la lectura' : 'Escuchar esta pantalla'}
           />
         )}

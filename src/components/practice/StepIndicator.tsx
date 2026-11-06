@@ -5,13 +5,15 @@ export const PRACTICE_STEPS = ['Mirar', 'Pista', 'Decidir'] as const;
 interface StepIndicatorProps {
   /** 0 = Mirar, 1 = Pista, 2 = Decidir */
   current: number;
+  /** Fondo del paso actual: el color del tema que se practica */
+  activeClass?: string;
 }
 
 /**
  * C5 · Indicador de pasos: los mismos tres verbos en todas las prácticas
  * (D9) y el paso actual siempre visible (CQ7).
  */
-export function StepIndicator({ current }: StepIndicatorProps) {
+export function StepIndicator({ current, activeClass = 'bg-primary border-primary text-white' }: StepIndicatorProps) {
   return (
     <ol className="flex items-center w-full py-3" aria-label={`Paso ${current + 1} de 3`}>
       {PRACTICE_STEPS.map((label, i) => {
@@ -26,7 +28,7 @@ export function StepIndicator({ current }: StepIndicatorProps) {
                   done
                     ? 'bg-success border-success text-white'
                     : active
-                    ? 'bg-primary border-primary text-white'
+                    ? activeClass
                     : 'bg-surface border-gray-400 text-text-muted',
                 ].join(' ')}
               >

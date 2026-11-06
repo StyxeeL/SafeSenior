@@ -21,6 +21,7 @@ import {
 } from '@/data/learningPath';
 import { useProgress } from '@/hooks/useProgress';
 import { getModuleById } from '@/data/practiceScenarios';
+import { moduleTheme } from '@/data/moduleTheme';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
@@ -171,6 +172,7 @@ export function LearningPathMap() {
             const info = getModuleById(module.id);
             const Icon = info?.icon ?? BookOpen;
             const done = module.steps.filter((s) => stepStatuses[s.id] === 'completed').length;
+            const t = moduleTheme[module.id];
             return (
               <button
                 key={module.id}
@@ -178,10 +180,10 @@ export function LearningPathMap() {
                 onClick={() =>
                   document.getElementById(`modulo-${module.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
-                className="text-left bg-surface rounded-2xl border-2 border-gray-200 hover:border-primary p-3 min-h-[150px] flex flex-col gap-2 shadow-card focus:outline-none focus-visible:ring-4 focus-visible:ring-info/40"
+                className={`text-left ${t.tint} rounded-2xl border-2 ${t.border} hover:brightness-95 p-3 min-h-[150px] flex flex-col gap-2 shadow-card focus:outline-none focus-visible:ring-4 focus-visible:ring-info/40`}
               >
-                <span className="w-11 h-11 rounded-xl bg-primary-light text-text flex items-center justify-center">
-                  <Icon size={24} aria-hidden="true" />
+                <span className={`w-12 h-12 rounded-xl ${t.solid} flex items-center justify-center shadow-sm`}>
+                  <Icon size={26} strokeWidth={2.4} aria-hidden="true" />
                 </span>
                 <span className="font-bold text-base leading-tight">{info?.title}</span>
                 <span className="text-sm text-text-muted leading-snug flex-1">{info?.subtitle}</span>
@@ -190,7 +192,7 @@ export function LearningPathMap() {
                     <Check size={14} strokeWidth={3} aria-hidden="true" /> {done} de {module.steps.length} hechos
                   </span>
                 ) : (
-                  <span className="self-start text-xs font-bold text-text bg-gray-100 px-2.5 py-1 rounded-full">
+                  <span className={`self-start text-xs font-bold ${t.text} bg-surface px-2.5 py-1 rounded-full`}>
                     Nueva
                   </span>
                 )}
@@ -208,29 +210,31 @@ export function LearningPathMap() {
         const completedCount = module.steps.filter((s) => stepStatuses[s.id] === 'completed').length;
         const totalCount = module.steps.length;
         const isModuleFinished = completedCount === totalCount;
+        const t = moduleTheme[module.id];
+        const ModIcon = getModuleById(module.id)?.icon ?? BookOpen;
 
         return (
           <section
             key={module.id}
             id={`modulo-${module.id}`}
-            className="scroll-mt-24 rounded-3xl border-2 border-gray-200 bg-surface p-4 sm:p-6 shadow-card"
+            className={`scroll-mt-24 rounded-3xl ${t.tint} p-4 sm:p-6 shadow-card`}
           >
             {/* Encabezado del módulo */}
-            <div className="rounded-2xl bg-primary-light text-text p-4 sm:p-5 mb-8">
+            <div className={`rounded-2xl ${t.solid} p-4 sm:p-5 mb-8 shadow-md`}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   {isModuleFinished ? (
-                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-success text-white px-3 py-1 rounded-full mb-1">
+                    <span className="inline-flex items-center gap-1 text-xs font-bold bg-white text-success px-3 py-1 rounded-full mb-1">
                       ✓ Módulo completado
                     </span>
                   ) : (
-                    <span className="inline-block text-xs font-bold bg-surface border border-gray-300 px-3 py-1 rounded-full mb-1">
-                      {module.title}
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold bg-white ${t.text} px-3 py-1 rounded-full mb-1`}>
+                      <ModIcon size={14} strokeWidth={2.6} aria-hidden="true" /> {module.title}
                     </span>
                   )}
                   <h3 className="text-xl font-bold">{module.subtitle}</h3>
                 </div>
-                <div className="shrink-0 bg-surface px-4 py-2 rounded-xl text-center border border-gray-200">
+                <div className="shrink-0 bg-white text-text px-4 py-2 rounded-xl text-center">
                   <p className="text-xs font-bold text-text-muted">Mi avance</p>
                   <p className="text-lg font-bold">
                     {completedCount} de {totalCount} pasos
@@ -239,9 +243,9 @@ export function LearningPathMap() {
               </div>
 
               {/* Progress bar inside banner */}
-              <div className="w-full bg-gray-300 h-2.5 rounded-full overflow-hidden mt-3">
+              <div className="w-full bg-white/30 h-2.5 rounded-full overflow-hidden mt-3">
                 <div
-                  className="bg-success h-full transition-all duration-500 rounded-full"
+                  className="bg-white h-full transition-all duration-500 rounded-full"
                   style={{ width: `${(completedCount / totalCount) * 100}%` }}
                 />
               </div>
@@ -267,11 +271,11 @@ export function LearningPathMap() {
                     {/* Pulsing speech bubble for active node */}
                     {isActive && (
                       <div className="absolute -top-12 z-10 flex flex-col items-center">
-                        <div className="bg-primary text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 whitespace-nowrap">
+                        <div className={`${t.solid} text-xs sm:text-sm font-bold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 whitespace-nowrap`}>
                           <Sparkles size={16} aria-hidden="true" />
                           <span>Sigue aquí</span>
                         </div>
-                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-primary" />
+                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]" style={{ borderTopColor: t.hex }} />
                       </div>
                     )}
 
@@ -287,12 +291,12 @@ export function LearningPathMap() {
                         'w-20 h-20 sm:w-22 sm:h-22 focus:outline-none focus:ring-4',
                         // Active State
                         isActive
-                          ? 'bg-primary text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ring-primary/30 scale-105 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.25)]'
+                          ? `${t.solid} shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ${t.ring} scale-105 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.25)]`
                           // Completed State
                           : isCompleted
                           ? 'bg-success text-white shadow-[0_5px_0_rgba(0,0,0,0.2)] hover:brightness-110 active:translate-y-1 active:shadow-[0_2px_0_rgba(0,0,0,0.2)]'
                           // Locked State
-                          : 'bg-gray-200 text-gray-600 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
+                          : 'bg-white text-gray-600 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-50',
                       ].join(' ')}
                     >
                       {/* Inner Icon */}
@@ -334,8 +338,8 @@ export function LearningPathMap() {
       })}
 
       {/* Gran Reto Final: Graduación SafeSenior */}
-      <section className="rounded-3xl border-2 border-primary bg-surface p-6 sm:p-8 shadow-card text-center max-w-md mx-auto">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary text-white rounded-2xl shadow-md mb-3">
+      <section className="rounded-3xl border-2 border-gold bg-gold-light p-6 sm:p-8 shadow-card text-center max-w-md mx-auto">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gold text-white rounded-2xl shadow-md mb-3">
           <Trophy size={36} />
         </div>
         <h3 className="text-2xl font-bold">Gran reto final</h3>
@@ -350,7 +354,7 @@ export function LearningPathMap() {
         >
           {stepStatuses[finalGraduationStep.id] === 'active' && (
             <div className="mb-3">
-              <span className="bg-primary text-white font-bold text-xs px-3 py-1 rounded-full">
+              <span className="bg-gold text-white font-bold text-xs px-3 py-1 rounded-full">
                 Reto final disponible
               </span>
             </div>
@@ -365,7 +369,7 @@ export function LearningPathMap() {
               stepStatuses[finalGraduationStep.id] === 'completed'
                 ? 'bg-success text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] hover:brightness-110 active:translate-y-1'
                 : stepStatuses[finalGraduationStep.id] === 'active'
-                ? 'bg-primary text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ring-primary/30 scale-110 active:translate-y-1'
+                ? 'bg-gold text-white shadow-[0_6px_0_rgba(0,0,0,0.25)] ring-4 ring-offset-4 ring-gold/30 scale-110 active:translate-y-1'
                 : 'bg-gray-200 text-gray-600 border-b-4 border-gray-300 shadow-sm cursor-pointer hover:bg-gray-250',
             ].join(' ')}
           >

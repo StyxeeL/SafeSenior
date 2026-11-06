@@ -33,7 +33,7 @@ export function TopBar() {
     <header className="fixed top-0 left-0 right-0 z-30 bg-background/95 backdrop-blur border-b border-gray-200">
       <div className="max-w-3xl mx-auto h-20 px-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="hidden min-[400px]:flex shrink-0 w-11 h-11 rounded-xl bg-primary text-white items-center justify-center">
+          <span className="hidden min-[400px]:flex shrink-0 w-11 h-11 rounded-xl bg-success text-white items-center justify-center">
             <Shield size={24} aria-hidden="true" />
           </span>
           <div className="min-w-0 leading-tight">
@@ -48,10 +48,11 @@ export function TopBar() {
               label={speaking ? 'Detener' : 'Escuchar'}
               pressed={speaking}
               onClick={() => toggleRead()}
+              iconClass="text-info"
               ariaLabel={speaking ? 'Detener la lectura' : 'Escuchar esta pantalla'}
             />
           )}
-          <BarAction icon={HelpCircle} label="Ayuda" onClick={() => setHelpOpen(true)} />
+          <BarAction icon={HelpCircle} label="Ayuda" onClick={() => setHelpOpen(true)} iconClass="text-call" />
         </div>
       </div>
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />

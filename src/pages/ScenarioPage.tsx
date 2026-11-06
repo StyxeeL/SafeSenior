@@ -10,8 +10,10 @@ import {
   ShieldCheck,
   LogOut,
   Info,
+  ShieldAlert,
 } from 'lucide-react';
 import { getModuleById, getScenarioById, type ModuleId, type Scenario } from '@/data/practiceScenarios';
+import { moduleTheme } from '@/data/moduleTheme';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -96,6 +98,7 @@ export function ScenarioPage() {
   const missing = pistas.length - reviewed.size;
   const selectedChoice = content.choices.find((c) => c.id === selectedChoiceId);
   const stimulusName = STIMULUS_NAME[content.type];
+  const theme = moduleTheme[module.id];
 
   const reviewPista = (index: number) => {
     setReviewed((prev) => new Set(prev).add(index));
@@ -157,9 +160,14 @@ export function ScenarioPage() {
         onSafeExit={() => setExitOpen(true)}
       />
 
-      <StepIndicator current={step} />
-      <p className="text-sm font-bold text-text-muted mb-1">
-        {module.title} · {currentScenario.title}
+      <StepIndicator current={step} activeClass={`${theme.solid} ${theme.border}`} />
+      <p className="flex items-center gap-2 text-sm font-bold text-text-muted mb-1">
+        <span className={`shrink-0 w-8 h-8 rounded-lg ${theme.solid} flex items-center justify-center`}>
+          <module.icon size={18} strokeWidth={2.4} aria-hidden="true" />
+        </span>
+        <span>
+          <span className={theme.text}>{module.title}</span> · {currentScenario.title}
+        </span>
       </p>
 
       {hasSwitchedScenario && step === 0 && (
@@ -238,6 +246,7 @@ export function ScenarioPage() {
             </span>
           </div>
 
+          <DangerNote />
           <PinnedStimulus content={content} pistas={pistas} reviewed={reviewed} onPistaClick={reviewPista} />
 
           <div className="flex flex-col gap-3 pt-1">
@@ -261,6 +270,7 @@ export function ScenarioPage() {
       {/* ───────── PASO 3 · DECIDIR ───────── */}
       {step === 2 && (
         <section className="space-y-4" aria-label="Paso 3: Decidir">
+          <DangerNote />
           <PinnedStimulus content={content} pistas={pistas} reviewed={reviewed} />
 
           <div data-escuchar>
@@ -381,5 +391,15 @@ export function ScenarioPage() {
         Paso {step + 1} de 3: {PRACTICE_STEPS[step]}
       </span>
     </div>
+  );
+}
+
+/** Rojo = peligro (guía de estilo): avisa que el mensaje fijado es un intento de estafa. */
+function DangerNote() {
+  return (
+    <p className="flex items-center gap-2 rounded-2xl bg-danger-light border-2 border-danger text-danger font-bold text-sm px-3 py-2">
+      <ShieldAlert size={22} strokeWidth={2.4} className="shrink-0" aria-hidden="true" />
+      Este mensaje tiene señales de estafa. Revísalo con calma.
+    </p>
   );
 }

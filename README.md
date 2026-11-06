@@ -148,6 +148,8 @@ Cada práctica sigue siempre los mismos tres pasos: **Mirar → Pista → Decidi
 
 **Colores con significado fijo:** Tinta `#1F2937` (texto y botón principal), Verde seguro `#17703F` (salir seguro, acierto), Rojo alerta `#B42318` (solo peligro), Ámbar pista `#8A4B00` sobre `#FFF4D6`, Azul información `#1D4ED8`, fondo crema `#FAF8F3`. **Tipografía:** Atkinson Hyperlegible.
 
+**Color de identidad por tema** (distinto de los colores con significado, todos con contraste ≥ 5:1 frente a texto blanco): SMS azul `#1D4ED8`, WhatsApp turquesa `#0E7490`, Llamadas violeta `#6D28D9`, Correos fucsia `#A21CAF` y reto final dorado `#B45309`. Se usa en las tarjetas del inicio, los encabezados y el nodo activo del camino, y el paso actual de cada práctica. Dentro de la práctica, un aviso rojo indica que el mensaje tiene señales de estafa.
+
 ---
 
 ## ♿ Accesibilidad (WCAG 2.2 AA)

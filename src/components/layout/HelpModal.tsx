@@ -8,9 +8,9 @@ interface HelpModalProps {
 }
 
 const steps = [
-  { icon: Eye, title: 'Mirar', text: 'Mira con calma la llamada o el mensaje.' },
-  { icon: Search, title: 'Pista', text: 'Toca cada pista para saber por qué es sospechosa.' },
-  { icon: CheckCircle2, title: 'Decidir', text: 'Elige qué harías y confirma tu respuesta.' },
+  { icon: Eye, title: 'Mirar', text: 'Mira con calma la llamada o el mensaje.', color: 'bg-info' },
+  { icon: Search, title: 'Pista', text: 'Toca cada pista para saber por qué es sospechosa.', color: 'bg-warning' },
+  { icon: CheckCircle2, title: 'Decidir', text: 'Elige qué harías y confirma tu respuesta.', color: 'bg-success' },
 ];
 
 /** Ayuda breve y contextual (Gomez-Hernandez et al., 2023): siempre con texto. */
@@ -31,7 +31,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
         <ol className="space-y-3">
           {steps.map((s, i) => (
             <li key={s.title} className="flex items-start gap-3">
-              <span className="shrink-0 w-10 h-10 rounded-full bg-primary text-white font-bold flex items-center justify-center">
+              <span className={`shrink-0 w-10 h-10 rounded-full ${s.color} text-white font-bold flex items-center justify-center`}>
                 {i + 1}
               </span>
               <div>

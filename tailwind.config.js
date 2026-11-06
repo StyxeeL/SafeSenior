@@ -29,6 +29,14 @@ export default {
           DEFAULT: 'rgb(var(--c-info) / <alpha-value>)', // Azul información #1D4ED8
           light: 'rgb(var(--c-info-light) / <alpha-value>)',
         },
+        // Color de identidad de cada tema. Son tonos distintos de los semánticos
+        // (rojo = peligro, verde = seguro, ámbar = pista) para no confundirlos.
+        // Todos tienen contraste ≥ 5:1 con texto blanco.
+        sms: { DEFAULT: '#1D4ED8', light: '#E3EBFD' }, // azul
+        wapp: { DEFAULT: '#0E7490', light: '#DDF1F6' }, // turquesa
+        call: { DEFAULT: '#6D28D9', light: '#EEE6FC' }, // violeta
+        mail: { DEFAULT: '#A21CAF', light: '#F7E6FA' }, // fucsia
+        gold: { DEFAULT: '#B45309', light: '#FDEFD5' }, // reto final
         background: 'rgb(var(--c-bg) / <alpha-value>)', // Fondo crema #FAF8F3
         surface: 'rgb(var(--c-surface) / <alpha-value>)',
         text: {

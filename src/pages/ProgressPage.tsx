@@ -36,7 +36,7 @@ export function ProgressPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="flex flex-col items-center text-center gap-2 p-5">
-          <BarChart3 size={36} className="text-primary" aria-hidden="true" />
+          <BarChart3 size={36} className="text-sms" aria-hidden="true" />
           <p className="text-text-muted text-base">Ejercicios realizados</p>
           <p className="text-4xl font-bold text-text">{totalExercises}</p>
         </Card>
@@ -48,8 +48,8 @@ export function ProgressPage() {
       </div>
 
       <Card className="flex flex-col sm:flex-row items-center gap-4 p-5">
-        <div className="p-4 bg-primary-light rounded-full shrink-0">
-          <Award size={44} className="text-primary" aria-hidden="true" />
+        <div className="p-4 bg-gold-light rounded-full shrink-0">
+          <Award size={44} className="text-gold" aria-hidden="true" />
         </div>
         <div className="flex-1 w-full">
           <h3 className="text-xl font-bold text-text mb-2">Efectividad en tus decisiones</h3>
@@ -63,7 +63,7 @@ export function ProgressPage() {
 
       <Card>
         <h3 className="text-xl font-bold text-text mb-4 flex items-center gap-2">
-          <Target size={26} className="text-primary" aria-hidden="true" />
+          <Target size={26} className="text-call" aria-hidden="true" />
           Avance por módulo
         </h3>
         <div className="space-y-4">
