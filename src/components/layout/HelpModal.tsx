@@ -27,6 +27,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
       }
     >
       <div className="space-y-4" data-escuchar>
+        <p className="text-sm text-text-muted">
+          <strong className="text-text">SABIA</strong>: Sistema de Aprendizaje y Blindaje Informático para Adultos.
+        </p>
         <p className="text-base">Cada práctica tiene siempre los mismos 3 pasos:</p>
         <ol className="space-y-3">
           {steps.map((s, i) => (

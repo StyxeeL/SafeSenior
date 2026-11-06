@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'icons/*.png'],
       manifest: {
-        name: 'SafeSenior',
-        short_name: 'SafeSenior',
+        name: 'SABIA · Sistema de Aprendizaje y Blindaje Informático para Adultos',
+        short_name: 'SABIA',
         description: 'Aprende a reconocer y prevenir estafas digitales de forma sencilla y segura.',
         theme_color: '#FAF8F3',
         background_color: '#FAF8F3',

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Shield, Volume2, Square, HelpCircle } from 'lucide-react';
+import { Shield, Volume2, Square, HelpCircle, Download } from 'lucide-react';
 import { BarAction } from './BarAction';
 import { HelpModal } from './HelpModal';
 import { useReadAloud } from '@/hooks/useReadAloud';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { InstallHelpModal } from '@/components/pwa/InstallHelpModal';
 
 const titles: Record<string, { title: string; subtitle: string }> = {
-  '/': { title: 'SafeSenior', subtitle: 'Práctica segura contra estafas' },
+  '/': { title: 'SABIA', subtitle: 'Aprende a protegerte de estafas' },
   '/progreso': { title: 'Mi avance', subtitle: 'Lo que ya practicaste' },
   '/configuracion': { title: 'Configuración', subtitle: 'Letra, sonido y contraste' },
 };
@@ -28,10 +30,14 @@ export function TopBar() {
   const { title, subtitle } = getTitle(location.pathname);
   const { supported, speaking, toggleRead } = useReadAloud();
   const [helpOpen, setHelpOpen] = useState(false);
+  const [installHelpOpen, setInstallHelpOpen] = useState(false);
+  const { isSupported: canPrompt, isInstalled, promptInstall } = useInstallPrompt();
+  // Instalar con un toque si el navegador lo permite; si no, mostrar los pasos a mano.
+  const handleInstall = () => (canPrompt ? promptInstall() : setInstallHelpOpen(true));
 
   return (
     <header className="fixed top-0 left-0 right-0 z-30 bg-background/95 backdrop-blur border-b border-gray-200">
-      <div className="max-w-3xl mx-auto h-20 px-4 flex items-center justify-between gap-3">
+      <div className="max-w-3xl mx-auto h-20 px-3 sm:px-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="hidden min-[400px]:flex shrink-0 w-11 h-11 rounded-xl bg-success text-white items-center justify-center">
             <Shield size={24} aria-hidden="true" />
@@ -41,7 +47,10 @@ export function TopBar() {
             <p className="text-xs text-text-muted truncate">{subtitle}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {!isInstalled && (
+            <BarAction icon={Download} label="Instalar" onClick={handleInstall} iconClass="text-success" ariaLabel="Instalar SABIA en tu celular" />
+          )}
           {supported && (
             <BarAction
               icon={speaking ? Square : Volume2}
@@ -56,6 +65,7 @@ export function TopBar() {
         </div>
       </div>
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      <InstallHelpModal isOpen={installHelpOpen} onClose={() => setInstallHelpOpen(false)} />
     </header>
   );
 }

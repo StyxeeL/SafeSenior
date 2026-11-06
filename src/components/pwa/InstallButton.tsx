@@ -29,7 +29,7 @@ export function InstallButton({ variant = 'primary', fullWidth = true }: Install
       leftIcon={<Download size={24} />}
       onClick={promptInstall}
     >
-      Instalar SafeSenior
+      Instalar SABIA
     </Button>
   );
 }

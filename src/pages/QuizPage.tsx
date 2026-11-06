@@ -28,7 +28,7 @@ const MODULE_TITLES: Record<string, { title: string; subtitle: string }> = {
     subtitle: 'Verifica si sabes distinguir correos legítimos de trampas digitales.',
   },
   final: {
-    title: '🏆 Gran Reto: Graduación SafeSenior',
+    title: '🏆 Gran Reto: Graduación SABIA',
     subtitle: 'Evaluación final con situaciones de los 4 módulos. ¡Asegura tu certificado!',
   },
 };

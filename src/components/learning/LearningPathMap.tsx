@@ -337,14 +337,14 @@ export function LearningPathMap() {
         );
       })}
 
-      {/* Gran Reto Final: Graduación SafeSenior */}
+      {/* Gran Reto Final: Graduación SABIA */}
       <section className="rounded-3xl border-2 border-gold bg-gold-light p-6 sm:p-8 shadow-card text-center max-w-md mx-auto">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-gold text-white rounded-2xl shadow-md mb-3">
           <Trophy size={36} />
         </div>
         <h3 className="text-2xl font-bold">Gran reto final</h3>
         <p className="text-text-muted text-base mt-1 mb-6">
-          Demuestra todo lo aprendido en los 4 módulos y obtén tu Diploma de Protector Senior.
+          Demuestra todo lo aprendido en los 4 módulos y obtén tu Diploma de Protector Digital SABIA.
         </p>
 
         {/* Node button for final exam */}

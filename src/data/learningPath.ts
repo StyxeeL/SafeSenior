@@ -287,7 +287,7 @@ export const finalGraduationStep: LearningPathStep = {
   id: 'step-final-graduation',
   moduleId: 'final',
   type: 'final',
-  title: 'Gran Reto: Graduación SafeSenior',
+  title: 'Gran Reto: Graduación SABIA',
   shortTitle: 'Graduación',
   subtitle: 'Evaluación integradora de los 4 módulos. ¡Obtén tu Diploma!',
   link: '/evaluame?module=final',

@@ -1,6 +1,8 @@
-# SafeSenior 🛡️
+# SABIA 🛡️
 
-**SafeSenior** es una aplicación educativa web progresiva (PWA) diseñada para adultos mayores del Perú, orientada a enseñar el reconocimiento y prevención de estafas digitales mediante un **recorrido guiado interactivo estilo Duolingo** y **simulaciones hiperrealistas de plataformas digitales**.
+**Sistema de Aprendizaje y Blindaje Informático para Adultos**
+
+**SABIA** (antes SafeSenior) es una aplicación educativa web progresiva (PWA) diseñada para adultos mayores del Perú, orientada a enseñar el reconocimiento y prevención de estafas digitales mediante un **recorrido guiado interactivo estilo Duolingo** y **simulaciones hiperrealistas de plataformas digitales**.
 
 > **Proyecto Académico:** Interacción Humano-Computador (IHC) — UNMSM (6to Ciclo)  
 > **Arquitectura:** PWA 100% *Client-Side* en React + TypeScript + Tailwind CSS. Funciona sin backend y completamente fuera de línea tras su primera carga.
@@ -34,7 +36,7 @@ El recorrido está organizado en bloques temáticos por color accesible:
 | **Módulo 2: WhatsApp Falsos** | 🟢 Verde Confianza | 📖 Aprende WhatsApp $\rightarrow$ 📱 Práctica (Familiar) $\rightarrow$ 🎯 Práctica (Comprobante Yape) $\rightarrow$ 🛡️ Reto WhatsApp |
 | **Módulo 3: Llamadas Falsas** | 🟣 Púrpura Alerta | 📖 Aprende Llamadas $\rightarrow$ 📱 Práctica (Código OTP) $\rightarrow$ 🎯 Práctica (Llamada familiar) $\rightarrow$ 🛡️ Reto Llamadas |
 | **Módulo 4: Correos Falsos** | 🟠 Ámbar Vigilante | 📖 Aprende Correos $\rightarrow$ 📱 Práctica (Banco bloqueado) $\rightarrow$ 🎯 Práctica (Falsa SUNAT) $\rightarrow$ 🛡️ Reto Correos |
-| **Gran Reto de Graduación** | 🏆 Oro / Dorado | Evaluación Integradora de los 4 módulos $\rightarrow$ **Diploma Digital de Protector Senior** |
+| **Gran Reto de Graduación** | 🏆 Oro / Dorado | Evaluación Integradora de los 4 módulos $\rightarrow$ **Diploma de Protector Digital SABIA** |
 
 ### Estados visuales de los nodos:
 * **Completado:** Color sólido temático, checkmark blanco (`✓`), etiqueta *"Hecho"* y opción de repasar.
@@ -158,6 +160,7 @@ Cada práctica sigue siempre los mismos tres pasos: **Mirar → Pista → Decidi
 * **Tamaño de texto graduable:** Normal, grande y muy grande desde Configuración.
 * **Modo de alto contraste:** Cambia todos los colores de la interfaz para usuarios con baja visión o cataratas.
 * **Lectura en voz alta:** Botón «Escuchar» en todas las pantallas.
+* **Instalar:** Botón «Instalar» en la barra superior; si el navegador no permite instalar con un toque, muestra los pasos para Android y iPhone.
 * **Audio de retroalimentación:** Sonidos sutiles que confirman acciones correctas o señalan alertas sin sobresaltos.
 * **Navegación accesible:** Navegación por teclado, atajo *"Saltar al contenido principal"* y etiquetas ARIA en todos los nodos interactivos.
 
@@ -165,7 +168,7 @@ Cada práctica sigue siempre los mismos tres pasos: **Mirar → Pista → Decidi
 
 ## 🔒 Compromiso de Seguridad
 
-Todas las simulaciones en SafeSenior son **100% ficticias y educativas**:
+Todas las simulaciones en SABIA son **100% ficticias y educativas**:
 * No se realizan llamadas, mensajes SMS ni correos reales.
 * Nunca se solicitan contraseñas, números de tarjeta ni claves de seguridad reales.
 * Los comprobantes de pago cuentan con marcas claras de **"SIMULACIÓN EDUCATIVA"**.

@@ -19,7 +19,7 @@ const fontSizeOptions: { value: FontSize; label: string }[] = [
 
 const faqs = [
   {
-    question: '¿SafeSenior realiza llamadas o envía mensajes reales?',
+    question: '¿SABIA realiza llamadas o envía mensajes reales?',
     answer:
       'No. Todos los ejercicios son simulaciones educativas ficticias. No se realizan llamadas, mensajes ni transferencias reales.',
   },
@@ -114,7 +114,7 @@ export function SettingsPage() {
                 leftIcon={<Volume2 size={20} />}
                 onClick={() =>
                   speak(
-                    'Has activado las instrucciones por audio. SafeSenior te ayudará a reconocer estafas digitales.'
+                    'Has activado las instrucciones por audio. SABIA te ayudará a reconocer estafas digitales.'
                   )
                 }
               >
@@ -151,7 +151,7 @@ export function SettingsPage() {
         <Card className="bg-primary-light border-primary/20">
           <h3 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
             <Download size={24} aria-hidden="true" />
-            Instalar SafeSenior
+            Instalar SABIA
           </h3>
           <p className="text-text mb-4">
             Instala la aplicación en tu dispositivo para acceder más rápido y usarla sin internet.

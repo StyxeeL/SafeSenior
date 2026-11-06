@@ -74,10 +74,10 @@ export function QuizResultPage() {
               Certificado de Reconocimiento
             </p>
             <h3 className="text-2xl font-bold text-amber-950 mt-1">
-              Protector Senior en Seguridad Digital
+              Protector Digital SABIA
             </h3>
             <p className="text-amber-900 mt-2 text-base leading-relaxed">
-              Has completado satisfactoriamente los 4 módulos de SafeSenior: SMS, WhatsApp, Llamadas y Correos.
+              Has completado satisfactoriamente los 4 módulos de SABIA: SMS, WhatsApp, Llamadas y Correos.
               ¡Tu perseverancia mantiene seguros tus datos y tu bienestar!
             </p>
           </div>
