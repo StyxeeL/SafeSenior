@@ -161,49 +161,13 @@ export function LearningPathMap() {
   };
 
   return (
-    <div className="relative pb-24 space-y-10">
-      {/* D8 · D9 · D11 — Menú de situaciones del prototipo v2: lenguaje cotidiano y avance visible */}
-      <section aria-labelledby="que-practicar" data-escuchar>
-        <h2 id="que-practicar" className="page-title mb-3">
-          ¿Qué quieres practicar hoy?
-        </h2>
-        <div className="grid grid-cols-2 gap-3">
-          {learningPathModules.map((module) => {
-            const info = getModuleById(module.id);
-            const Icon = info?.icon ?? BookOpen;
-            const done = module.steps.filter((s) => stepStatuses[s.id] === 'completed').length;
-            const t = moduleTheme[module.id];
-            return (
-              <button
-                key={module.id}
-                type="button"
-                onClick={() =>
-                  document.getElementById(`modulo-${module.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-                className={`text-left ${t.tint} rounded-2xl border-2 ${t.border} hover:brightness-95 p-3 min-h-[150px] flex flex-col gap-2 shadow-card focus:outline-none focus-visible:ring-4 focus-visible:ring-info/40`}
-              >
-                <span className={`w-12 h-12 rounded-xl ${t.solid} flex items-center justify-center shadow-sm`}>
-                  <Icon size={26} strokeWidth={2.4} aria-hidden="true" />
-                </span>
-                <span className="font-bold text-base leading-tight">{info?.title}</span>
-                <span className="text-sm text-text-muted leading-snug flex-1">{info?.subtitle}</span>
-                {done > 0 ? (
-                  <span className="self-start inline-flex items-center gap-1 text-xs font-bold text-success bg-success-light px-2.5 py-1 rounded-full">
-                    <Check size={14} strokeWidth={3} aria-hidden="true" /> {done} de {module.steps.length} hechos
-                  </span>
-                ) : (
-                  <span className={`self-start text-xs font-bold ${t.text} bg-surface px-2.5 py-1 rounded-full`}>
-                    Nueva
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        <p className="text-sm text-text-muted mt-3">Todo es una práctica: no se usa tu dinero ni tus datos.</p>
-      </section>
-
-      <h2 className="page-title -mb-4">Tu camino, paso a paso</h2>
+    <div className="relative pb-24 space-y-8">
+      <div data-escuchar>
+        <h2 className="page-title">Tu camino, paso a paso</h2>
+        <p className="text-text-muted text-base mt-1">
+          Avanza paso a paso a tu propio ritmo. Todo es una práctica: no se usa tu dinero ni tus datos.
+        </p>
+      </div>
 
       {/* List of modules in order */}
       {learningPathModules.map((module) => {
